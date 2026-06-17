@@ -21,14 +21,14 @@
     --stitch-active-bg: #e8e0d6;
     --toggle-track: #c8bfb0;
     --toggle-knob: #ffffff;
-    --modal-overlay: rgba(42, 31, 20, 0.42);
-    --modal-shadow: rgba(42, 31, 20, 0.22);
-    --focus-ring: rgba(184, 134, 90, 0.18);
+    --modal-overlay: rgba(42,31,20,0.42);
+    --modal-shadow: rgba(42,31,20,0.22);
+    --focus-ring: rgba(184,134,90,0.18);
     --canvas-empty: #ffffff;
     --canvas-fill: #f5f0e8;
     --canvas-border: #c8bfb0;
     --canvas-symbol: #2a1f14;
-    --canvas-shadow: rgba(124, 92, 62, 0.10);
+    --canvas-shadow: rgba(124,92,62,0.10);
     --error: #9a3b2e;
   }
   [data-theme="dark"] {
@@ -47,26 +47,26 @@
     --stitch-active-bg: #2e2820;
     --toggle-track: #3d342a;
     --toggle-knob: #e8dfd3;
-    --modal-overlay: rgba(0, 0, 0, 0.58);
-    --modal-shadow: rgba(0, 0, 0, 0.45);
-    --focus-ring: rgba(212, 188, 152, 0.22);
+    --modal-overlay: rgba(0,0,0,0.58);
+    --modal-shadow: rgba(0,0,0,0.45);
+    --focus-ring: rgba(212,188,152,0.22);
     --canvas-empty: #2a241e;
     --canvas-fill: #322c24;
     --canvas-border: #4a4034;
     --canvas-symbol: #e8dfd3;
-    --canvas-shadow: rgba(0, 0, 0, 0.38);
+    --canvas-shadow: rgba(0,0,0,0.38);
     --error: #d48472;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Georgia', serif;
+    font-family: Georgia, serif;
     background: var(--bg);
     color: var(--text);
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: background-color 0.22s ease, color 0.22s ease;
+    transition: background-color 0.22s, color 0.22s;
   }
   header {
     background: var(--header-bg, var(--accent));
@@ -77,7 +77,7 @@
     gap: 16px;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    transition: background-color 0.22s ease, color 0.22s ease;
+    transition: background-color 0.22s, color 0.22s;
   }
   header h1 { font-size: 1.2rem; letter-spacing: 0.04em; font-weight: normal; flex: 1; }
   .main { display: flex; flex: 1; overflow: hidden; }
@@ -89,7 +89,7 @@
     flex-direction: column;
     overflow-y: auto;
     flex-shrink: 0;
-    transition: background-color 0.22s ease, border-color 0.22s ease;
+    transition: background-color 0.22s, border-color 0.22s;
   }
   .sidebar-section { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
   .sidebar-section h3 {
@@ -111,7 +111,7 @@
     background: var(--accent); color: var(--btn-primary-text);
     padding: 6px 12px; font-size: 0.82rem; letter-spacing: 0.04em;
     width: 100%; margin-top: 4px;
-    transition: background 0.15s, color 0.22s ease;
+    transition: background 0.15s, color 0.22s;
   }
   .btn-primary:hover { background: var(--accent2); }
   .btn-secondary {
@@ -119,7 +119,7 @@
     border: 1px solid var(--accent);
     padding: 6px 12px; font-size: 0.82rem;
     width: 100%; margin-top: 6px;
-    transition: background 0.15s, color 0.22s ease, border-color 0.22s ease;
+    transition: background 0.15s, color 0.22s, border-color 0.22s;
   }
   .btn-secondary:hover { background: var(--btn-secondary-hover); }
   .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -137,19 +137,11 @@
   }
   .stitch-item.active { background: var(--stitch-active-bg); border-color: var(--accent); }
   .stitch-item.disabled { opacity: 0.38; }
-
-  /* The icon+label part is clickable to select active stitch */
-  .stitch-select {
-    display: flex; align-items: center; gap: 8px;
-    flex: 1; cursor: pointer;
-  }
+  .stitch-select { display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer; }
   .stitch-label { font-size: 0.78rem; color: var(--text); line-height: 1.2; }
 
-  /* Toggle checkbox styled as pill */
-  .stitch-toggle {
-    position: relative; flex-shrink: 0;
-    width: 30px; height: 17px;
-  }
+  /* Toggle pill */
+  .stitch-toggle { position: relative; flex-shrink: 0; width: 30px; height: 17px; }
   .stitch-toggle input { opacity: 0; width: 0; height: 0; }
   .stitch-toggle-track {
     position: absolute; inset: 0; border-radius: 17px;
@@ -160,29 +152,27 @@
     content: '';
     position: absolute; width: 11px; height: 11px;
     border-radius: 50%; background: var(--toggle-knob);
-    top: 3px; left: 3px; transition: transform 0.2s, background 0.22s ease;
+    top: 3px; left: 3px; transition: transform 0.2s, background 0.22s;
   }
   .stitch-toggle input:checked + .stitch-toggle-track::before { transform: translateX(13px); }
 
-  /* Dark mode: switche z outlinem zamiast pełnego wypełnienia */
-  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track {
-    background: transparent;
-    border: 1px solid var(--accent2);
-  }
-  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track::before {
-    background: var(--accent2);
-    top: 2px;
-    left: 2px;
-    transform: translateX(12px);
-  }
+  /* Dark mode toggles — outline style instead of fill */
   [data-theme="dark"] .stitch-toggle-track {
     background: transparent;
     border: 1px solid var(--border);
   }
   [data-theme="dark"] .stitch-toggle-track::before {
     background: var(--text2);
-    top: 2px;
-    left: 2px;
+    top: 2px; left: 2px;
+  }
+  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track {
+    background: transparent;
+    border: 1px solid var(--accent2);
+  }
+  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track::before {
+    background: var(--accent2);
+    top: 2px; left: 2px;
+    transform: translateX(12px);
   }
 
   /* Canvas area */
@@ -190,11 +180,10 @@
     flex: 1; overflow: auto;
     display: flex; align-items: flex-start; justify-content: flex-start;
     padding: 20px; background: var(--bg);
-    transition: background-color 0.22s ease;
+    transition: background-color 0.22s;
   }
-  /* wrapper includes ruler labels */
   #grid-outer { display: inline-flex; flex-direction: column; user-select: none; }
-  #col-ruler { display: flex; margin-left: 0; }  /* filled by JS */
+  #col-ruler { display: flex; }
   #grid-row-wrap { display: flex; }
   #row-ruler { display: flex; flex-direction: column; }
   .ruler-cell {
@@ -207,17 +196,16 @@
     border: 2px solid var(--accent);
     box-shadow: 0 4px 24px var(--canvas-shadow);
   }
-
   .theme-row {
     display: flex; align-items: center; justify-content: space-between;
     gap: 10px; margin-bottom: 4px;
   }
   .theme-label { font-size: 0.82rem; color: var(--text); }
-
   .hint { font-size: 0.72rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
-  #export-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
-  #save-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
-
+  #export-status, #save-status {
+    font-size: 0.75rem; color: var(--accent2);
+    margin-top: 6px; min-height: 16px; text-align: center;
+  }
 
   /* Modal */
   .modal-overlay {
@@ -245,10 +233,7 @@
     border-bottom: 1px solid var(--border);
     background: var(--panel);
   }
-  .modal-header h2 {
-    font-size: 0.95rem; font-weight: normal;
-    letter-spacing: 0.04em; color: var(--text);
-  }
+  .modal-header h2 { font-size: 0.95rem; font-weight: normal; letter-spacing: 0.04em; color: var(--text); }
   .modal-close {
     background: none; border: none;
     color: var(--text2); font-size: 1.35rem; line-height: 1;
@@ -256,26 +241,16 @@
   }
   .modal-close:hover { color: var(--text); }
   .modal-body { padding: 14px 16px; overflow-y: auto; }
-  .modal-desc {
-    font-size: 0.82rem; color: var(--text2);
-    line-height: 1.45; margin-bottom: 10px;
-  }
+  .modal-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.45; margin-bottom: 10px; }
   .modal-textarea {
     width: 100%; min-height: 120px; max-height: 220px;
     padding: 8px 10px; resize: vertical;
     border: 1px solid var(--border); border-radius: 3px;
     background: var(--bg); font-size: 0.78rem;
-    font-family: monospace; color: var(--text);
-    line-height: 1.4;
+    font-family: monospace; color: var(--text); line-height: 1.4;
   }
-  .modal-textarea:focus {
-    outline: none; border-color: var(--accent2);
-    box-shadow: 0 0 0 2px var(--focus-ring);
-  }
-  .modal-error {
-    font-size: 0.78rem; color: var(--error);
-    margin-top: 8px; min-height: 0;
-  }
+  .modal-textarea:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 2px var(--focus-ring); }
+  .modal-error { font-size: 0.78rem; color: var(--error); margin-top: 8px; min-height: 0; }
   .modal-error:empty { display: none; }
   .modal-footer {
     display: flex; gap: 8px;
@@ -286,15 +261,14 @@
   .modal-footer button { flex: 1; margin-top: 0; }
 </style>
 <script>
-  if (localStorage.getItem('knitty-theme') === 'dark') {
+  if (localStorage.getItem('knitty-theme') === 'dark')
     document.documentElement.setAttribute('data-theme', 'dark');
-  }
 </script>
 </head>
 <body>
 
 <header>
-  <h1>🦆 Knitty Designer 1.8</h1>
+  <h1>🦆 Knitty Designer 1.9</h1>
 </header>
 
 <div class="main">
@@ -349,8 +323,8 @@
     <div class="sidebar-section">
       <h3>Pozostałe</h3>
       <button class="btn-secondary" id="btn-clear">Wyczyść siatkę</button>
-      <button class="btn-primary" id="btn-export-hash" style="margin-top: 6px;">Generuj kod zapisu</button>
-      <button class="btn-secondary" id="btn-import-hash" style="margin-top: 6px;">Wczytaj z kodu</button>
+      <button class="btn-primary" id="btn-export-hash">Generuj kod zapisu</button>
+      <button class="btn-secondary" id="btn-import-hash">Wczytaj z kodu</button>
       <div id="save-status"></div>
     </div>
 
@@ -359,7 +333,7 @@
   <div class="canvas-area">
     <div id="grid-outer">
       <div style="display:flex">
-        <div id="row-ruler-spacer"></div><!-- spacer matching row ruler width -->
+        <div id="row-ruler-spacer"></div>
         <div id="col-ruler"></div>
       </div>
       <div id="grid-row-wrap">
@@ -370,6 +344,7 @@
   </div>
 </div>
 
+<!-- Hash modal -->
 <div id="hash-modal-overlay" class="modal-overlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hash-modal-title">
     <div class="modal-header">
@@ -388,6 +363,7 @@
   </div>
 </div>
 
+<!-- Confirm modal -->
 <div id="confirm-modal-overlay" class="modal-overlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
     <div class="modal-header">
@@ -406,51 +382,42 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-// ─── Stitch definitions ────────────────────────────────────────────────
+// ─── Stitch definitions ───────────────────────────────────────────────
 const STITCHES = [
-{
-  id: 'kaczka',
-  label: 'Square',
-  draw: (ctx, x, y, s) => {
-    ctx.beginPath();
-    // Tworzymy mały kwadracik w samym środku komórki
-    // s * 0.44 to szerokość odpowiadająca średnicy kropki z 'P on RS'
-    ctx.rect(x + s * 0.28, y + s * 0.28, s * 0.44, s * 0.44);
-    
-    // Zapamiętujemy oryginalną grubość linii
-    const originalLineWidth = ctx.lineWidth; 
-    
-    // Zamiast fillStyle, "wypełniamy" go za pomocą grubego obrysu, 
-    // co zapobiega psuciu tła i innych ikon w pętli
-    ctx.lineWidth = s * 0.44;
-    ctx.stroke();
-    
-    // Przywracamy domyślną grubość dla kolejnych ikon
-    ctx.lineWidth = originalLineWidth;
-  }
-}, 
-{
+  {
+    id: 'kaczka',
+    label: 'Square',
+    draw(ctx, x, y, s) {
+      const orig = ctx.lineWidth;
+      ctx.beginPath();
+      ctx.rect(x + s*0.28, y + s*0.28, s*0.44, s*0.44);
+      ctx.lineWidth = s * 0.44;
+      ctx.stroke();
+      ctx.lineWidth = orig;
+    }
+  },
+  {
     id: 'p_rs',
     label: 'Dot',
-    draw: (ctx, x, y, s) => {
+    draw(ctx, x, y, s) {
       ctx.beginPath();
-      ctx.arc(x + s/2, y + s/2, s * 0.22, 0, Math.PI*2);
+      ctx.arc(x + s/2, y + s/2, s*0.22, 0, Math.PI*2);
       ctx.fill();
     }
   },
   {
     id: 'yo',
     label: 'Circle',
-    draw: (ctx, x, y, s) => {
+    draw(ctx, x, y, s) {
       ctx.beginPath();
-      ctx.arc(x + s/2, y + s/2, s * 0.30, 0, Math.PI*2);
+      ctx.arc(x + s/2, y + s/2, s*0.30, 0, Math.PI*2);
       ctx.stroke();
     }
   },
   {
     id: 'ssk',
     label: 'SSK',
-    draw: (ctx, x, y, s) => {
+    draw(ctx, x, y, s) {
       ctx.beginPath();
       ctx.moveTo(x + s*0.75, y + s*0.15);
       ctx.lineTo(x + s*0.15, y + s*0.85);
@@ -459,18 +426,11 @@ const STITCHES = [
   },
 ];
 
-// Which stitches are enabled (included in cycle). 'empty' is always structural.
-// enabledSet: Set of stitch ids that are toggled ON
-const enabledSet = new Set([STITCHES[0].id]);
-
-function getActiveCycle() {
-  // ordered cycle of enabled non-empty stitches
-  return STITCHES.filter(s => s.id !== 'empty' && enabledSet.has(s.id)).map(s => s.id);
-}
-
 // ─── State ────────────────────────────────────────────────────────────
 let COLS = 20, ROWS = 20, CELL = 32;
 let grid = [];
+let activeStitch = 'kaczka';
+const enabledSet = new Set([STITCHES[0].id]);
 
 function makeGrid(rows, cols) {
   return Array.from({length: rows}, () => Array(cols).fill(null));
@@ -485,9 +445,8 @@ function resizeGrid(newRows, newCols) {
   for (let r = 0; r < oldRows; r++) {
     for (let c = 0; c < oldCols; c++) {
       const nr = r + rowOff, nc = c + colOff;
-      if (nr >= 0 && nr < newRows && nc >= 0 && nc < newCols) {
+      if (nr >= 0 && nr < newRows && nc >= 0 && nc < newCols)
         ng[nr][nc] = grid[r][c];
-      }
     }
   }
   grid = ng;
@@ -495,14 +454,11 @@ function resizeGrid(newRows, newCols) {
 
 grid = makeGrid(ROWS, COLS);
 
-// ─── Undo / Redo ──────────────────────────────────────────────────────
+// ─── Undo / Redo ─────────────────────────────────────────────────────
 const MAX_HISTORY = 50;
-let undoStack = [];
-let redoStack = [];
+let undoStack = [], redoStack = [];
 
-function cloneGrid(g) {
-  return g.map(row => row.slice());
-}
+const cloneGrid = g => g.map(row => row.slice());
 
 function pushHistory() {
   undoStack.push(cloneGrid(grid));
@@ -515,44 +471,36 @@ function undo() {
   if (!undoStack.length) return;
   redoStack.push(cloneGrid(grid));
   grid = undoStack.pop();
-  redraw();
-  updateUndoRedoButtons();
+  redraw(); updateUndoRedoButtons();
 }
 
 function redo() {
   if (!redoStack.length) return;
   undoStack.push(cloneGrid(grid));
   grid = redoStack.pop();
-  redraw();
-  updateUndoRedoButtons();
+  redraw(); updateUndoRedoButtons();
 }
 
 function updateUndoRedoButtons() {
-  document.getElementById('btn-undo').disabled = undoStack.length === 0;
-  document.getElementById('btn-redo').disabled = redoStack.length === 0;
+  document.getElementById('btn-undo').disabled = !undoStack.length;
+  document.getElementById('btn-redo').disabled = !redoStack.length;
 }
 
 function clearDrawHistory() {
-  undoStack = [];
-  redoStack = [];
+  undoStack = []; redoStack = [];
   updateUndoRedoButtons();
 }
 
-let activeStitch = 'kaczka';
-
 // ─── Mouse state ──────────────────────────────────────────────────────
-// FIX: track last cell entered during drag — only apply draw when entering a NEW cell
-let isDrawing = false;
-let drawMode = null; // 'draw' | 'erase'
-let lastDragCell = null; // {r,c} — cell where we last applied an action during drag
+let isDrawing = false, drawMode = null, lastDragCell = null;
 
 // ─── Canvas setup ─────────────────────────────────────────────────────
 const canvas = document.getElementById('grid-canvas');
-const ctx = canvas.getContext('2d');
-const RULER_W = 28; // px width of row ruler column
+const ctx    = canvas.getContext('2d');
+const RULER_W = 28;
 
-function canvasWidth()  { return COLS * CELL; }
-function canvasHeight() { return ROWS * CELL; }
+const canvasWidth  = () => COLS * CELL;
+const canvasHeight = () => ROWS * CELL;
 
 function initCanvas() {
   const dpr = window.devicePixelRatio || 1;
@@ -570,36 +518,29 @@ function buildRulers() {
   const rowRuler = document.getElementById('row-ruler');
   const spacer   = document.getElementById('row-ruler-spacer');
 
-  spacer.style.width  = RULER_W + 'px';
+  spacer.style.width = RULER_W + 'px';
   spacer.style.flexShrink = '0';
 
-  // Column ruler (letters A-Z, AA, AB…)
   colRuler.innerHTML = '';
   for (let c = 0; c < COLS; c++) {
     const el = document.createElement('div');
     el.className = 'ruler-cell';
-    el.style.width  = CELL + 'px';
-    el.style.height = RULER_W + 'px';
-    el.style.flexShrink = '0';
+    el.style.cssText = `width:${CELL}px;height:${RULER_W}px;flex-shrink:0`;
     el.textContent = colLabel(c);
     colRuler.appendChild(el);
   }
 
-  // Row ruler (numbers 1, 2, 3…)
   rowRuler.innerHTML = '';
   for (let r = 0; r < ROWS; r++) {
     const el = document.createElement('div');
     el.className = 'ruler-cell';
-    el.style.width  = RULER_W + 'px';
-    el.style.height = CELL + 'px';
-    el.style.flexShrink = '0';
+    el.style.cssText = `width:${RULER_W}px;height:${CELL}px;flex-shrink:0`;
     el.textContent = r + 1;
     rowRuler.appendChild(el);
   }
 }
 
 function colLabel(c) {
-  // A-Z, then AA, AB…
   let label = '';
   c++;
   while (c > 0) {
@@ -618,8 +559,8 @@ function getCanvasColors() {
   return {
     border: s.getPropertyValue('--canvas-border').trim(),
     symbol: s.getPropertyValue('--canvas-symbol').trim(),
-    fill: s.getPropertyValue('--canvas-fill').trim(),
-    empty: s.getPropertyValue('--canvas-empty').trim(),
+    fill:   s.getPropertyValue('--canvas-fill').trim(),
+    empty:  s.getPropertyValue('--canvas-empty').trim(),
   };
 }
 
@@ -644,23 +585,24 @@ function initTheme() {
 }
 
 // ─── Drawing ──────────────────────────────────────────────────────────
+function getActiveCycle() {
+  return STITCHES.filter(s => enabledSet.has(s.id)).map(s => s.id);
+}
+
 function drawCell(r, c) {
   const colors = getCanvasColors();
-  const x = c * CELL, y = r * CELL;
-  const s = CELL;
+  const x = c * CELL, y = r * CELL, s = CELL;
   const stId = grid[r][c];
 
-  // background
   ctx.fillStyle = (stId && stId !== 'empty') ? colors.fill : colors.empty;
   ctx.fillRect(x+1, y+1, s-1, s-1);
 
-  // symbol
   if (stId && stId !== 'empty') {
     const st = STITCHES.find(st => st.id === stId);
-    if (st && st.draw) {
+    if (st?.draw) {
       ctx.strokeStyle = colors.symbol;
       ctx.fillStyle   = colors.symbol;
-      ctx.lineWidth   = Math.max(1.5, s * 0.055);
+      ctx.lineWidth   = Math.max(1.5, s*0.055);
       ctx.lineCap     = 'round';
       st.draw(ctx, x, y, s);
     }
@@ -672,7 +614,6 @@ function redraw() {
   const W = canvasWidth(), H = canvasHeight();
   ctx.clearRect(0, 0, W, H);
 
-  // grid lines
   ctx.strokeStyle = colors.border;
   ctx.lineWidth   = 0.5;
   for (let r = 0; r <= ROWS; r++) {
@@ -696,28 +637,28 @@ function buildStitchUI() {
   STITCHES.forEach(st => {
     const item = document.createElement('div');
     item.className = 'stitch-item';
-    if (st.id !== 'empty' && st.id === activeStitch) item.classList.add('active');
+    if (st.id === activeStitch) item.classList.add('active');
     if (!enabledSet.has(st.id)) item.classList.add('disabled');
     item.dataset.id = st.id;
 
-    // ── icon
+    // Icon via offscreen canvas → SVG image
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('width', '26'); svg.setAttribute('height', '26');
     svg.setAttribute('viewBox', '0 0 26 26');
 
-    const rect = document.createElementNS(svgNS, 'rect');
-    rect.setAttribute('x','0.5'); rect.setAttribute('y','0.5');
-    rect.setAttribute('width','25'); rect.setAttribute('height','25');
-    rect.setAttribute('fill', st.id === 'empty' ? colors.empty : colors.fill);
-    rect.setAttribute('stroke', colors.border); rect.setAttribute('stroke-width','1');
-    svg.appendChild(rect);
+    const bg = document.createElementNS(svgNS, 'rect');
+    bg.setAttribute('x','0.5'); bg.setAttribute('y','0.5');
+    bg.setAttribute('width','25'); bg.setAttribute('height','25');
+    bg.setAttribute('fill', st.id === 'empty' ? colors.empty : colors.fill);
+    bg.setAttribute('stroke', colors.border); bg.setAttribute('stroke-width','1');
+    svg.appendChild(bg);
 
     if (st.draw) {
       const oc = document.createElement('canvas');
-      oc.width = 26; oc.height = 26;
+      oc.width = oc.height = 26;
       const oc2 = oc.getContext('2d');
-      oc2.strokeStyle = colors.symbol; oc2.fillStyle = colors.symbol;
+      oc2.strokeStyle = oc2.fillStyle = colors.symbol;
       oc2.lineWidth = 1.6; oc2.lineCap = 'round';
       st.draw(oc2, 0, 0, 26);
       const img = document.createElementNS(svgNS, 'image');
@@ -731,25 +672,16 @@ function buildStitchUI() {
     label.className = 'stitch-label';
     label.textContent = st.label;
 
-    // clickable select area (icon + label)
     const selectArea = document.createElement('div');
     selectArea.className = 'stitch-select';
-    selectArea.appendChild(svg);
-    selectArea.appendChild(label);
+    selectArea.append(svg, label);
+    selectArea.addEventListener('click', () => {
+      if (!enabledSet.has(st.id)) return;
+      activeStitch = st.id;
+      ensureActiveStitchValid();
+      refreshStitchUI();
+    });
 
-    if (st.id !== 'empty') {
-      selectArea.addEventListener('click', () => {
-        if (!enabledSet.has(st.id)) return; // can't select disabled
-        activeStitch = st.id;
-        // if activeStitch is no longer in cycle, pick first enabled
-        ensureActiveStitchValid();
-        refreshStitchUI();
-      });
-    }
-
-    item.appendChild(selectArea);
-
-    // ── toggle (pill switch)
     const toggleLabel = document.createElement('label');
     toggleLabel.className = 'stitch-toggle';
     const chk = document.createElement('input');
@@ -757,19 +689,13 @@ function buildStitchUI() {
     chk.checked = enabledSet.has(st.id);
     const track = document.createElement('div');
     track.className = 'stitch-toggle-track';
-    toggleLabel.appendChild(chk);
-    toggleLabel.appendChild(track);
+    toggleLabel.append(chk, track);
 
     chk.addEventListener('change', () => {
       if (chk.checked) {
         enabledSet.add(st.id);
       } else {
-        // don't allow disabling if it's the last enabled non-empty stitch
-        const cycle = getActiveCycle();
-        if (st.id !== 'empty' && cycle.length <= 1) {
-          chk.checked = true;
-          return;
-        }
+        if (getActiveCycle().length <= 1) { chk.checked = true; return; }
         enabledSet.delete(st.id);
       }
       item.classList.toggle('disabled', !enabledSet.has(st.id));
@@ -777,7 +703,7 @@ function buildStitchUI() {
       refreshStitchUI();
     });
 
-    item.appendChild(toggleLabel);
+    item.append(selectArea, toggleLabel);
     list.appendChild(item);
   });
 }
@@ -785,60 +711,42 @@ function buildStitchUI() {
 function refreshStitchUI() {
   document.querySelectorAll('.stitch-item').forEach(el => {
     const id = el.dataset.id;
-    el.classList.toggle('active', id === activeStitch && id !== 'empty');
+    el.classList.toggle('active', id === activeStitch);
     el.classList.toggle('disabled', !enabledSet.has(id));
   });
 }
 
 function ensureActiveStitchValid() {
   const cycle = getActiveCycle();
-  if (!cycle.includes(activeStitch)) {
-    activeStitch = cycle[0] ?? 'kaczka';
-  }
+  if (!cycle.includes(activeStitch)) activeStitch = cycle[0] ?? 'kaczka';
 }
 
-// ─── Mouse interaction ─────────────────────────────────────────────────
+// ─── Mouse interaction ────────────────────────────────────────────────
 function cellFromEvent(e) {
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const c = Math.floor(x / CELL);
-  const r = Math.floor(y / CELL);
+  const c = Math.floor((e.clientX - rect.left)  / CELL);
+  const r = Math.floor((e.clientY - rect.top) / CELL);
   if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
   return {r, c};
 }
 
-function cellKey(r, c) { return r + ',' + c; }
-
-// Apply action to a cell:
-// - erase mode: always clear
-// - draw mode: set to activeStitch ONLY (no cycling during drag)
-//   cycling happens only on fresh click (mousedown on same cell already painted with activeStitch)
 function applyCell(r, c, isFirstClick) {
   if (drawMode === 'erase') {
     if (grid[r][c] !== null) { grid[r][c] = null; drawCell(r, c); }
     return;
   }
-  // draw mode
   if (isFirstClick) {
-    // FIX: cycling ONLY on a fresh click (mousedown), not during drag
     const cur = grid[r][c];
     const cycle = getActiveCycle();
     if (cur === null || !cycle.includes(cur)) {
       grid[r][c] = activeStitch;
     } else {
-      // advance to next in cycle
-      const idx = cycle.indexOf(cur);
-      grid[r][c] = cycle[(idx + 1) % cycle.length];
-      // keep activeStitch in sync
+      grid[r][c] = cycle[(cycle.indexOf(cur) + 1) % cycle.length];
       activeStitch = grid[r][c];
       refreshStitchUI();
     }
   } else {
-    // drag — just paint activeStitch, don't cycle
-    if (grid[r][c] !== activeStitch) {
-      grid[r][c] = activeStitch;
-    }
+    if (grid[r][c] !== activeStitch) grid[r][c] = activeStitch;
   }
   drawCell(r, c);
 }
@@ -851,23 +759,20 @@ canvas.addEventListener('mousedown', e => {
   drawMode = e.button === 2 ? 'erase' : 'draw';
   lastDragCell = cell;
   pushHistory();
-  applyCell(cell.r, cell.c, true); // first click — allow cycle
+  applyCell(cell.r, cell.c, true);
 });
 
 canvas.addEventListener('mousemove', e => {
   if (!isDrawing) return;
   const cell = cellFromEvent(e);
   if (!cell) return;
-  // Only act when entering a NEW cell
   if (lastDragCell && cell.r === lastDragCell.r && cell.c === lastDragCell.c) return;
   lastDragCell = cell;
-  applyCell(cell.r, cell.c, false); // drag — no cycling
+  applyCell(cell.r, cell.c, false);
 });
 
 window.addEventListener('mouseup', () => {
-  isDrawing = false;
-  drawMode = null;
-  lastDragCell = null;
+  isDrawing = false; drawMode = null; lastDragCell = null;
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -882,19 +787,17 @@ document.getElementById('btn-resize').addEventListener('click', () => {
   resizeGrid(newRows, newCols);
   COLS = newCols; ROWS = newRows; CELL = newCell;
   clearDrawHistory();
-  initCanvas();
-  redraw();
+  initCanvas(); redraw();
 });
 
 // ─── Confirm modal ────────────────────────────────────────────────────
-const confirmModalOverlay = document.getElementById('confirm-modal-overlay');
-const confirmModalTitle = document.getElementById('confirm-modal-title');
-const confirmModalDesc = document.getElementById('confirm-modal-desc');
-const confirmModalPrimary = document.getElementById('confirm-modal-primary');
-const confirmModalSecondary = document.getElementById('confirm-modal-secondary');
-const confirmModalClose = document.getElementById('confirm-modal-close');
-
-let confirmModalOnPrimary = null;
+const confirmModalOverlay  = document.getElementById('confirm-modal-overlay');
+const confirmModalTitle    = document.getElementById('confirm-modal-title');
+const confirmModalDesc     = document.getElementById('confirm-modal-desc');
+const confirmModalPrimary  = document.getElementById('confirm-modal-primary');
+const confirmModalSecondary= document.getElementById('confirm-modal-secondary');
+const confirmModalClose    = document.getElementById('confirm-modal-close');
+let confirmModalOnPrimary  = null;
 
 function closeConfirmModal() {
   confirmModalOverlay.classList.remove('open');
@@ -903,8 +806,8 @@ function closeConfirmModal() {
 }
 
 function openConfirmModal({ title, description, primaryLabel, secondaryLabel, onPrimary }) {
-  confirmModalTitle.textContent = title;
-  confirmModalDesc.textContent = description;
+  confirmModalTitle.textContent   = title;
+  confirmModalDesc.textContent    = description;
   confirmModalPrimary.textContent = primaryLabel;
   confirmModalSecondary.textContent = secondaryLabel;
   confirmModalOnPrimary = onPrimary;
@@ -912,15 +815,10 @@ function openConfirmModal({ title, description, primaryLabel, secondaryLabel, on
   confirmModalOverlay.setAttribute('aria-hidden', 'false');
 }
 
-confirmModalPrimary.addEventListener('click', () => {
-  if (confirmModalOnPrimary) confirmModalOnPrimary();
-});
-
+confirmModalPrimary.addEventListener('click', () => confirmModalOnPrimary?.());
 confirmModalSecondary.addEventListener('click', closeConfirmModal);
 confirmModalClose.addEventListener('click', closeConfirmModal);
-confirmModalOverlay.addEventListener('click', (e) => {
-  if (e.target === confirmModalOverlay) closeConfirmModal();
-});
+confirmModalOverlay.addEventListener('click', e => { if (e.target === confirmModalOverlay) closeConfirmModal(); });
 
 // ─── Clear ────────────────────────────────────────────────────────────
 document.getElementById('btn-clear').addEventListener('click', () => {
@@ -931,9 +829,7 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     secondaryLabel: 'Anuluj',
     onPrimary: () => {
       grid = makeGrid(ROWS, COLS);
-      clearDrawHistory();
-      redraw();
-      closeConfirmModal();
+      clearDrawHistory(); redraw(); closeConfirmModal();
     }
   });
 });
@@ -944,31 +840,21 @@ document.getElementById('btn-jpg').addEventListener('click', () => {
   status.textContent = 'Generowanie JPG…';
   setTimeout(() => {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const rulerW = 28;
-    const margin = 20;
-    const W = COLS * CELL + rulerW + margin;
-    const H = ROWS * CELL + rulerW + margin;
-    const oc = document.createElement('canvas');
+    const W = COLS*CELL + RULER_W + 20, H = ROWS*CELL + RULER_W + 20;
+    const oc  = document.createElement('canvas');
     oc.width = W; oc.height = H;
     const oc2 = oc.getContext('2d');
-    // background
     oc2.fillStyle = dark ? '#1a1612' : '#ffffff';
     oc2.fillRect(0, 0, W, H);
-    // grid (copy from main canvas, offset by rulerW; right/bottom margin stays empty)
-    oc2.drawImage(canvas, 0, 0, COLS*CELL, ROWS*CELL, rulerW, rulerW, COLS*CELL, ROWS*CELL);
-    // col ruler
+    oc2.drawImage(canvas, 0, 0, COLS*CELL, ROWS*CELL, RULER_W, RULER_W, COLS*CELL, ROWS*CELL);
     oc2.fillStyle = dark ? '#a89880' : '#6b5c4a';
     oc2.font = '10px monospace';
-    oc2.textAlign = 'center';
-    oc2.textBaseline = 'middle';
-    for (let c = 0; c < COLS; c++) {
-      oc2.fillText(colLabel(c), rulerW + c * CELL + CELL/2, rulerW/2);
-    }
-    // row ruler
+    oc2.textAlign = 'center'; oc2.textBaseline = 'middle';
+    for (let c = 0; c < COLS; c++)
+      oc2.fillText(colLabel(c), RULER_W + c*CELL + CELL/2, RULER_W/2);
     oc2.textAlign = 'right';
-    for (let r = 0; r < ROWS; r++) {
-      oc2.fillText(String(r + 1), rulerW - 3, rulerW + r * CELL + CELL/2);
-    }
+    for (let r = 0; r < ROWS; r++)
+      oc2.fillText(r+1, RULER_W-3, RULER_W + r*CELL + CELL/2);
     const link = document.createElement('a');
     link.download = 'knitty-pattern.jpg';
     link.href = oc.toDataURL('image/jpeg', 0.95);
@@ -985,83 +871,59 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   await new Promise(r => setTimeout(r, 20));
   try {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    // color palette depending on theme
-    const pBg        = dark ? [26, 22, 18]     : [255, 255, 255];
-    const pEmpty     = dark ? [42, 36, 30]      : [255, 255, 255];
-    const pFill      = dark ? [50, 44, 36]      : [245, 240, 232];
-    const pGridLine  = dark ? [74, 64, 52]      : [200, 191, 176];
-    const pSymbol    = dark ? [232, 223, 211]   : [42, 31, 20];
-    const pRuler     = dark ? [168, 152, 128]   : [107, 92, 74];
-    const pTitle     = dark ? [196, 168, 130]   : [124, 92, 62];
+    const pBg       = dark ? [26,22,18]     : [255,255,255];
+    const pEmpty    = dark ? [42,36,30]      : [255,255,255];
+    const pFill     = dark ? [50,44,36]      : [245,240,232];
+    const pGridLine = dark ? [74,64,52]      : [200,191,176];
+    const pSymbol   = dark ? [232,223,211]   : [42,31,20];
+    const pRuler    = dark ? [168,152,128]   : [107,92,74];
+    const pTitle    = dark ? [196,168,130]   : [124,92,62];
 
     const { jsPDF } = window.jspdf;
-    const margin = 28;
-    const rulerPt = 18;
-    const ptPerPx = 72 / 96;
-    const cPt = CELL * ptPerPx;
-    const W = COLS * cPt + 2*margin + rulerPt;
-    const H = ROWS * cPt + 2*margin + rulerPt + 30;
-
+    const margin = 28, rulerPt = 18;
+    const cPt = CELL * (72/96);
+    const W = COLS*cPt + 2*margin + rulerPt;
+    const H = ROWS*cPt + 2*margin + rulerPt + 30;
     const doc = new jsPDF({ orientation: W > H ? 'landscape' : 'portrait', unit: 'pt', format: [W, H] });
+    const ox = margin + rulerPt, oy = margin + rulerPt;
 
-    const ox = margin + rulerPt;
-    const oy = margin + rulerPt;
+    if (dark) { doc.setFillColor(...pBg); doc.rect(0, 0, W, H, 'F'); }
 
-    // background
-    if (dark) {
-      doc.setFillColor(...pBg);
-      doc.rect(0, 0, W, H, 'F');
-    }
-
-    // title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
     doc.setTextColor(...pTitle);
-    doc.text('Knitty Designer 1.8', margin, margin - 8);
+    doc.text('Knitty Designer 1.9', margin, margin - 8);
 
-    // col ruler
-    doc.setFontSize(6); doc.setFont('helvetica','normal');
+    doc.setFontSize(6); doc.setFont('helvetica', 'normal');
     doc.setTextColor(...pRuler);
-    for (let c = 0; c < COLS; c++) {
-      const x = ox + c * cPt + cPt/2;
-      doc.text(colLabel(c), x, oy - 4, { align: 'center' });
-    }
-    // row ruler
-    for (let r = 0; r < ROWS; r++) {
-      const y = oy + r * cPt + cPt/2 + 2;
-      doc.text(String(r+1), ox - 3, y, { align: 'right' });
-    }
+    for (let c = 0; c < COLS; c++)
+      doc.text(colLabel(c), ox + c*cPt + cPt/2, oy - 4, { align: 'center' });
+    for (let r = 0; r < ROWS; r++)
+      doc.text(String(r+1), ox - 3, oy + r*cPt + cPt/2 + 2, { align: 'right' });
 
-    // cells
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
-        const x = ox + c * cPt;
-        const y = oy + r * cPt;
+        const x = ox + c*cPt, y = oy + r*cPt;
         const stId = grid[r][c];
-
         doc.setFillColor(...(stId && stId !== 'empty' ? pFill : pEmpty));
         doc.rect(x, y, cPt, cPt, 'F');
         doc.setDrawColor(...pGridLine); doc.setLineWidth(0.3);
         doc.rect(x, y, cPt, cPt, 'S');
-
         if (stId && stId !== 'empty') {
           doc.setDrawColor(...pSymbol); doc.setFillColor(...pSymbol);
-          doc.setLineWidth(Math.max(0.6, cPt*0.055));
+          const lw = Math.max(0.6, cPt*0.055);
+          doc.setLineWidth(lw);
           const cx = x+cPt/2, cy = y+cPt/2;
-          if (stId === 'p_rs')  doc.circle(cx, cy, cPt*0.22, 'F');
-          else if (stId === 'kaczka') { doc.setLineWidth(cPt*0.44); doc.rect(x+cPt*0.28, y+cPt*0.28, cPt*0.44, cPt*0.44, 'S'); doc.setLineWidth(Math.max(0.6, cPt*0.055)); }
-          else if (stId === 'yo')    doc.circle(cx, cy, cPt*0.30, 'S');
-          else if (stId === 'ssk')   doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
+          if      (stId === 'p_rs')   doc.circle(cx, cy, cPt*0.22, 'F');
+          else if (stId === 'yo')     doc.circle(cx, cy, cPt*0.30, 'S');
+          else if (stId === 'ssk')    doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
+          else if (stId === 'kaczka') {
+            doc.setLineWidth(cPt*0.44);
+            doc.rect(x+cPt*0.28, y+cPt*0.28, cPt*0.44, cPt*0.44, 'S');
+            doc.setLineWidth(lw);
+          }
         }
       }
     }
-
-    // legend
-    // const ly = oy + ROWS*cPt + 14;
-    // doc.setFontSize(7); doc.setTextColor(...pRuler);
-    //STITCHES.filter(s => enabledSet.has(s.id)).forEach((st, i) => {
-    //  doc.text(`■ ${st.label}`, margin + (i%3)*(W/3 - margin), ly + Math.floor(i/3)*11);
-    //});
 
     doc.save('knitty-pattern.pdf');
     status.textContent = 'PDF gotowy!';
@@ -1071,70 +933,113 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     console.error(err);
   }
 });
-// ─── Save & Load system (RLE + Base64) ────────────────────────────────
 
-// Mapowanie identyfikatorów ściegów na pojedyncze znaki, aby hashe były jak najkrótsze
-const STITCH_MAP = {
-  'p_rs': 'P',
-  'kaczka': 'K',
-  'yo': 'Y',
-  'ssk': 'S',
-  'empty': '_',
-  'null': '_' // dla pustych pól w tablicy grid
-};
+// ─── Save & Load (RLE + Base62) ───────────────────────────────────────
+// Base62 charset: 0-9 A-Z a-z — only alphanumeric, no special chars
+const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-// Mapowanie odwrotne do wczytywania kodu
-const REVERSE_STITCH_MAP = Object.fromEntries(
-  Object.entries(STITCH_MAP).map(([key, value]) => [value, key === 'null' ? null : key])
-);
-
-// Funkcja generująca hasha
-function generateProjectHash() {
-  // 1. Spłaszczamy dwuwymiarową tablicę grid do jednej linii symboli jednoliterowych
-  const flatCells = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const val = grid[r][c];
-      flatCells.push(STITCH_MAP[val] || '_');
-    }
+function toBase62(bytes) {
+  // Convert Uint8Array → BigInt → Base62 string
+  let n = 0n;
+  for (const b of bytes) n = (n << 8n) | BigInt(b);
+  if (n === 0n) return '0';
+  let result = '';
+  const base = 62n;
+  while (n > 0n) {
+    result = B62[Number(n % base)] + result;
+    n /= base;
   }
-
-  // 2. Kompresja RLE (Run-Length Encoding) - np. z "_____KKKK" robi "5_4K"
-  let rleString = '';
-  let count = 1;
-  for (let i = 0; i < flatCells.length; i++) {
-    if (flatCells[i] === flatCells[i + 1]) {
-      count++;
-    } else {
-      rleString += count + flatCells[i];
-      count = 1;
-    }
-  }
-
-  // 3. Tworzymy obiekt z metadanymi (wymiarami siatki) i skompresowanym wzorem
-  const projectObject = {
-    w: ROWS,
-    k: COLS,
-    d: rleString
-  };
-
-  // 4. Konwertujemy na format Base64 bezpieczny dla tekstu
-  const jsonText = JSON.stringify(projectObject);
-  const hash = btoa(unescape(encodeURIComponent(jsonText)));
-  return hash;
+  return result;
 }
 
-// ─── Modal kodu zapisu ────────────────────────────────────────────────
-const hashModalOverlay = document.getElementById('hash-modal-overlay');
-const hashModalTitle = document.getElementById('hash-modal-title');
-const hashModalDesc = document.getElementById('hash-modal-desc');
-const hashModalText = document.getElementById('hash-modal-text');
-const hashModalError = document.getElementById('hash-modal-error');
-const hashModalPrimary = document.getElementById('hash-modal-primary');
-const hashModalSecondary = document.getElementById('hash-modal-secondary');
-const hashModalClose = document.getElementById('hash-modal-close');
+function fromBase62(str) {
+  // Base62 string → BigInt → Uint8Array
+  let n = 0n;
+  for (const ch of str) {
+    const idx = B62.indexOf(ch);
+    if (idx < 0) throw new Error('Nieprawidłowy znak w kodzie: ' + ch);
+    n = n * 62n + BigInt(idx);
+  }
+  const bytes = [];
+  while (n > 0n) { bytes.unshift(Number(n & 0xFFn)); n >>= 8n; }
+  return new Uint8Array(bytes);
+}
 
-let hashModalOnPrimary = null;
+// Stitch char map — single char per stitch id
+const STITCH_MAP = { p_rs: 'P', kaczka: 'K', yo: 'Y', ssk: 'S', empty: '_' };
+const REVERSE_STITCH_MAP = Object.fromEntries(
+  Object.entries(STITCH_MAP).map(([k, v]) => [v, k])
+);
+
+function generateProjectCode() {
+  // 1. Flatten grid → RLE string
+  const flat = [];
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      flat.push(STITCH_MAP[grid[r][c]] ?? '_');
+
+  let rle = '';
+  let count = 1;
+  for (let i = 0; i < flat.length; i++) {
+    if (flat[i] === flat[i+1]) { count++; }
+    else { rle += count + flat[i]; count = 1; }
+  }
+
+  // 2. JSON → UTF-8 bytes → Base62
+  const json = JSON.stringify({ w: ROWS, k: COLS, d: rle });
+  const bytes = new TextEncoder().encode(json);
+  return toBase62(bytes);
+}
+
+function loadProjectFromCode(code) {
+  try {
+    const bytes = fromBase62(code.trim());
+    const json  = new TextDecoder().decode(bytes);
+    const proj  = JSON.parse(json);
+
+    if (!proj.w || !proj.k || !proj.d) throw new Error('Nieprawidłowy format danych.');
+
+    ROWS = proj.w; COLS = proj.k;
+    document.getElementById('inp-rows').value = ROWS;
+    document.getElementById('inp-cols').value = COLS;
+
+    const flat = [];
+    const rx = /(\d+)(.)/g;
+    let m;
+    while ((m = rx.exec(proj.d)) !== null) {
+      const stId = REVERSE_STITCH_MAP[m[2]] ?? null;
+      for (let i = 0; i < +m[1]; i++) flat.push(stId === 'empty' ? null : stId);
+    }
+
+    if (flat.length !== ROWS * COLS) throw new Error('Niezgodność wymiarów siatki.');
+
+    grid = makeGrid(ROWS, COLS);
+    let idx = 0;
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        grid[r][c] = flat[idx++];
+
+    clearDrawHistory(); initCanvas(); redraw();
+    const status = document.getElementById('save-status');
+    status.textContent = 'Projekt wczytany!';
+    setTimeout(() => status.textContent = '', 2000);
+    return true;
+  } catch(err) {
+    console.error(err);
+    return false;
+  }
+}
+
+// ─── Hash modal ───────────────────────────────────────────────────────
+const hashModalOverlay   = document.getElementById('hash-modal-overlay');
+const hashModalTitle     = document.getElementById('hash-modal-title');
+const hashModalDesc      = document.getElementById('hash-modal-desc');
+const hashModalText      = document.getElementById('hash-modal-text');
+const hashModalError     = document.getElementById('hash-modal-error');
+const hashModalPrimary   = document.getElementById('hash-modal-primary');
+const hashModalSecondary = document.getElementById('hash-modal-secondary');
+const hashModalClose     = document.getElementById('hash-modal-close');
+let hashModalOnPrimary   = null;
 
 function closeHashModal() {
   hashModalOverlay.classList.remove('open');
@@ -1143,54 +1048,43 @@ function closeHashModal() {
 }
 
 function openHashModal({ title, description, text, readOnly, primaryLabel, secondaryLabel, onPrimary }) {
-  hashModalTitle.textContent = title;
-  hashModalDesc.textContent = description;
-  hashModalText.value = text || '';
-  hashModalText.readOnly = !!readOnly;
-  hashModalError.textContent = '';
-  hashModalPrimary.textContent = primaryLabel;
-  hashModalSecondary.textContent = secondaryLabel;
+  hashModalTitle.textContent    = title;
+  hashModalDesc.textContent     = description;
+  hashModalText.value           = text || '';
+  hashModalText.readOnly        = !!readOnly;
+  hashModalError.textContent    = '';
+  hashModalPrimary.textContent  = primaryLabel;
+  hashModalSecondary.textContent= secondaryLabel;
   hashModalOnPrimary = onPrimary;
-
   hashModalOverlay.classList.add('open');
   hashModalOverlay.setAttribute('aria-hidden', 'false');
-
-  if (readOnly) {
-    hashModalText.focus();
-    hashModalText.select();
-  } else {
-    hashModalText.focus();
-  }
+  hashModalText.focus();
+  if (readOnly) hashModalText.select();
 }
 
 async function copyHashModalText() {
-  const text = hashModalText.value;
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(hashModalText.value);
     } else {
       hashModalText.select();
       document.execCommand('copy');
     }
-    const original = hashModalPrimary.textContent;
+    const orig = hashModalPrimary.textContent;
     hashModalPrimary.textContent = 'Skopiowano!';
-    setTimeout(() => { hashModalPrimary.textContent = original; }, 1500);
-  } catch (err) {
+    setTimeout(() => hashModalPrimary.textContent = orig, 1500);
+  } catch(err) {
     hashModalError.textContent = 'Nie udało się skopiować — zaznacz tekst ręcznie.';
     console.error(err);
   }
 }
 
-hashModalPrimary.addEventListener('click', () => {
-  if (hashModalOnPrimary) hashModalOnPrimary();
-});
-
+hashModalPrimary.addEventListener('click', () => hashModalOnPrimary?.());
 hashModalSecondary.addEventListener('click', closeHashModal);
 hashModalClose.addEventListener('click', closeHashModal);
-hashModalOverlay.addEventListener('click', (e) => {
-  if (e.target === hashModalOverlay) closeHashModal();
-});
-document.addEventListener('keydown', (e) => {
+hashModalOverlay.addEventListener('click', e => { if (e.target === hashModalOverlay) closeHashModal(); });
+
+document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (confirmModalOverlay.classList.contains('open')) closeConfirmModal();
     else if (hashModalOverlay.classList.contains('open')) closeHashModal();
@@ -1201,75 +1095,11 @@ document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
 });
 
-// Funkcja wczytująca projekt z hasha
-function loadProjectFromHash(hash) {
-  try {
-    // 1. Odkodowanie z Base64 do JSON
-    const jsonText = decodeURIComponent(escape(atob(hash.trim())));
-    const project = JSON.parse(jsonText);
-
-    if (!project.w || !project.k || !project.d) {
-      throw new Error("Nieprawidłowy format danych wewnątrz kodu.");
-    }
-
-    // 2. Aktualizacja ustawień rozmiarów w UI i zmiennych globalnych
-    document.getElementById('inp-rows').value = project.w;
-    document.getElementById('inp-cols').value = project.k;
-    ROWS = project.w;
-    COLS = project.k;
-
-    // 3. Dekompresja ciągu RLE z powrotem do tablicy jednoliterowej
-    const flatCells = [];
-    const rleRegex = /(\d+)(.)/g;
-    let match;
-    
-    while ((match = rleRegex.exec(project.d)) !== null) {
-      const count = parseInt(match[1]);
-      const char = match[2];
-      const stitchId = REVERSE_STITCH_MAP[char] !== undefined ? REVERSE_STITCH_MAP[char] : null;
-      
-      for (let i = 0; i < count; i++) {
-        flatCells.push(stitchId);
-      }
-    }
-
-    // Sprawdzenie poprawności długości danych
-    if (flatCells.length !== ROWS * COLS) {
-      throw new Error("Suma pól w kodzie nie zgadza się z wymiarami siatki.");
-    }
-
-    // 4. Odbudowa dwuwymiarowej tablicy grid
-    grid = makeGrid(ROWS, COLS);
-    let index = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        grid[r][c] = flatCells[index++];
-      }
-    }
-
-    // 5. Odświeżenie płótna (canvas) i linijek
-    clearDrawHistory();
-    initCanvas();
-    redraw();
-    
-    const status = document.getElementById('save-status');
-    status.textContent = 'Projekt wczytany!';
-    setTimeout(() => status.textContent = '', 2000);
-    return true;
-
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-}
-
-// ─── Obsługa zdarzeń kliknięcia przycisków ─────────────────────────────
 document.getElementById('btn-export-hash').addEventListener('click', () => {
-  const hash = generateProjectHash();
   openHashModal({
     title: 'Kod zapisu',
     description: 'Skopiuj poniższy kod i zapisz go w bezpiecznym miejscu:',
-    text: hash,
+    text: generateProjectCode(),
     readOnly: true,
     primaryLabel: 'Kopiuj',
     secondaryLabel: 'Zamknij',
@@ -1286,21 +1116,13 @@ document.getElementById('btn-import-hash').addEventListener('click', () => {
     primaryLabel: 'Wczytaj',
     secondaryLabel: 'Anuluj',
     onPrimary: () => {
-      const hash = hashModalText.value;
-      if (!hash || hash.trim() === '') {
-        hashModalError.textContent = 'Wklej kod zapisu, aby wczytać projekt.';
-        return;
-      }
-      const ok = loadProjectFromHash(hash);
-      if (ok) {
-        closeHashModal();
-      } else {
-        hashModalError.textContent = 'Podany kod zapisu jest nieprawidłowy lub uszkodzony.';
-      }
+      const code = hashModalText.value.trim();
+      if (!code) { hashModalError.textContent = 'Wklej kod zapisu, aby wczytać projekt.'; return; }
+      if (loadProjectFromCode(code)) closeHashModal();
+      else hashModalError.textContent = 'Podany kod zapisu jest nieprawidłowy lub uszkodzony.';
     }
   });
 });
-
 
 // ─── Init ─────────────────────────────────────────────────────────────
 initTheme();
