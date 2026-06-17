@@ -14,6 +14,46 @@
     --accent2: #b8865a;
     --text: #2a1f14;
     --text2: #6b5c4a;
+    --header-text: #f7f4ef;
+    --btn-primary-text: #f7f4ef;
+    --btn-secondary-hover: #ede7df;
+    --stitch-active-bg: #e8e0d6;
+    --toggle-track: #c8bfb0;
+    --toggle-knob: #ffffff;
+    --modal-overlay: rgba(42, 31, 20, 0.42);
+    --modal-shadow: rgba(42, 31, 20, 0.22);
+    --focus-ring: rgba(184, 134, 90, 0.18);
+    --canvas-empty: #ffffff;
+    --canvas-fill: #f5f0e8;
+    --canvas-border: #c8bfb0;
+    --canvas-symbol: #2a1f14;
+    --canvas-shadow: rgba(124, 92, 62, 0.10);
+    --error: #9a3b2e;
+  }
+  [data-theme="dark"] {
+    --bg: #1a1612;
+    --surface: #252019;
+    --panel: #1f1b16;
+    --border: #3d342a;
+    --accent: #c4a882;
+    --accent2: #d4bc98;
+    --text: #e8dfd3;
+    --text2: #a89880;
+    --header-text: #f0e8dc;
+    --btn-primary-text: #1a1612;
+    --btn-secondary-hover: #2e2820;
+    --stitch-active-bg: #2e2820;
+    --toggle-track: #3d342a;
+    --toggle-knob: #e8dfd3;
+    --modal-overlay: rgba(0, 0, 0, 0.58);
+    --modal-shadow: rgba(0, 0, 0, 0.45);
+    --focus-ring: rgba(212, 188, 152, 0.22);
+    --canvas-empty: #2a241e;
+    --canvas-fill: #322c24;
+    --canvas-border: #4a4034;
+    --canvas-symbol: #e8dfd3;
+    --canvas-shadow: rgba(0, 0, 0, 0.38);
+    --error: #d48472;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -24,16 +64,18 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: background-color 0.22s ease, color 0.22s ease;
   }
   header {
     background: var(--accent);
-    color: #f7f4ef;
+    color: var(--header-text);
     padding: 10px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    transition: background-color 0.22s ease, color 0.22s ease;
   }
   header h1 { font-size: 1.2rem; letter-spacing: 0.04em; font-weight: normal; flex: 1; }
   .main { display: flex; flex: 1; overflow: hidden; }
@@ -45,6 +87,7 @@
     flex-direction: column;
     overflow-y: auto;
     flex-shrink: 0;
+    transition: background-color 0.22s ease, border-color 0.22s ease;
   }
   .sidebar-section { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
   .sidebar-section h3 {
@@ -63,18 +106,20 @@
   }
   button { cursor: pointer; border: none; border-radius: 3px; font-family: inherit; }
   .btn-primary {
-    background: var(--accent); color: #f7f4ef;
+    background: var(--accent); color: var(--btn-primary-text);
     padding: 6px 12px; font-size: 0.82rem; letter-spacing: 0.04em;
-    width: 100%; margin-top: 4px; transition: background 0.15s;
+    width: 100%; margin-top: 4px;
+    transition: background 0.15s, color 0.22s ease;
   }
   .btn-primary:hover { background: var(--accent2); }
   .btn-secondary {
     background: var(--surface); color: var(--accent);
     border: 1px solid var(--accent);
     padding: 6px 12px; font-size: 0.82rem;
-    width: 100%; margin-top: 6px; transition: background 0.15s;
+    width: 100%; margin-top: 6px;
+    transition: background 0.15s, color 0.22s ease, border-color 0.22s ease;
   }
-  .btn-secondary:hover { background: #ede7df; }
+  .btn-secondary:hover { background: var(--btn-secondary-hover); }
   .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-secondary:disabled:hover { background: var(--surface); }
   .btn-row { display: flex; gap: 6px; }
@@ -88,7 +133,7 @@
     border: 2px solid transparent;
     transition: background 0.1s, border-color 0.1s;
   }
-  .stitch-item.active { background: #e8e0d6; border-color: var(--accent); }
+  .stitch-item.active { background: var(--stitch-active-bg); border-color: var(--accent); }
   .stitch-item.disabled { opacity: 0.38; }
 
   /* The icon+label part is clickable to select active stitch */
@@ -106,14 +151,14 @@
   .stitch-toggle input { opacity: 0; width: 0; height: 0; }
   .stitch-toggle-track {
     position: absolute; inset: 0; border-radius: 17px;
-    background: #c8bfb0; cursor: pointer; transition: background 0.2s;
+    background: var(--toggle-track); cursor: pointer; transition: background 0.2s;
   }
   .stitch-toggle input:checked + .stitch-toggle-track { background: var(--accent2); }
   .stitch-toggle-track::before {
     content: '';
     position: absolute; width: 11px; height: 11px;
-    border-radius: 50%; background: #fff;
-    top: 3px; left: 3px; transition: transform 0.2s;
+    border-radius: 50%; background: var(--toggle-knob);
+    top: 3px; left: 3px; transition: transform 0.2s, background 0.22s ease;
   }
   .stitch-toggle input:checked + .stitch-toggle-track::before { transform: translateX(13px); }
 
@@ -122,6 +167,7 @@
     flex: 1; overflow: auto;
     display: flex; align-items: flex-start; justify-content: flex-start;
     padding: 20px; background: var(--bg);
+    transition: background-color 0.22s ease;
   }
   /* wrapper includes ruler labels */
   #grid-outer { display: inline-flex; flex-direction: column; user-select: none; }
@@ -136,8 +182,14 @@
   #grid-canvas {
     display: block; cursor: crosshair;
     border: 2px solid var(--accent);
-    box-shadow: 0 4px 24px rgba(124,92,62,0.10);
+    box-shadow: 0 4px 24px var(--canvas-shadow);
   }
+
+  .theme-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 4px;
+  }
+  .theme-label { font-size: 0.82rem; color: var(--text); }
 
   .hint { font-size: 0.72rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
   #export-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
@@ -145,7 +197,7 @@
   /* Modal */
   .modal-overlay {
     position: fixed; inset: 0;
-    background: rgba(42, 31, 20, 0.42);
+    background: var(--modal-overlay);
     display: flex; align-items: center; justify-content: center;
     padding: 20px; z-index: 1000;
     opacity: 0; visibility: hidden;
@@ -156,7 +208,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
-    box-shadow: 0 10px 36px rgba(42, 31, 20, 0.22);
+    box-shadow: 0 10px 36px var(--modal-shadow);
     width: min(480px, 100%);
     max-height: calc(100vh - 40px);
     display: flex; flex-direction: column;
@@ -193,10 +245,10 @@
   }
   .modal-textarea:focus {
     outline: none; border-color: var(--accent2);
-    box-shadow: 0 0 0 2px rgba(184, 134, 90, 0.18);
+    box-shadow: 0 0 0 2px var(--focus-ring);
   }
   .modal-error {
-    font-size: 0.78rem; color: #9a3b2e;
+    font-size: 0.78rem; color: var(--error);
     margin-top: 8px; min-height: 0;
   }
   .modal-error:empty { display: none; }
@@ -208,11 +260,16 @@
   }
   .modal-footer button { flex: 1; margin-top: 0; }
 </style>
+<script>
+  if (localStorage.getItem('knitty-theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+</script>
 </head>
 <body>
 
 <header>
-  <h1>🦆 Knitty Designer 1.4</h1>
+  <h1>🦆 Knitty Designer 1.5</h1>
 </header>
 
 <div class="main">
@@ -233,6 +290,14 @@
         <input type="number" id="inp-cell" value="32" min="16" max="64">px
       </div>
       <button class="btn-primary" id="btn-resize">Zastosuj</button>
+      <br><br>
+      <div class="theme-row">
+        <span class="theme-label">Tryb ciemny</span>
+        <label class="stitch-toggle" title="Przełącz tryb ciemny">
+          <input type="checkbox" id="toggle-dark-mode">
+          <span class="stitch-toggle-track"></span>
+        </label>
+      </div>
     </div>
 
     <div class="sidebar-section">
@@ -257,7 +322,7 @@
     </div>
 
     <div class="sidebar-section">
-      <h3>Projekt</h3>
+      <h3>Pozostałe</h3>
       <button class="btn-secondary" id="btn-clear">Wyczyść siatkę</button>
       <button class="btn-primary" id="btn-export-hash" style="margin-top: 6px;">Generuj kod zapisu</button>
       <button class="btn-secondary" id="btn-import-hash" style="margin-top: 6px;">Wczytaj z kodu</button>
@@ -340,7 +405,7 @@ const STITCHES = [
 }, 
 {
     id: 'p_rs',
-    label: 'P on RS / K on WS',
+    label: 'Dot',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.arc(x + s/2, y + s/2, s * 0.22, 0, Math.PI*2);
@@ -349,7 +414,7 @@ const STITCHES = [
   },
   {
     id: 'yo',
-    label: 'Yo',
+    label: 'Circle',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.arc(x + s/2, y + s/2, s * 0.30, 0, Math.PI*2);
@@ -541,26 +606,56 @@ function colLabel(c) {
   return label;
 }
 
-// ─── Drawing ──────────────────────────────────────────────────────────
-const BORDER_COLOR  = '#c8bfb0';
-const SYMBOL_COLOR  = '#2a1f14';
-const FILL_COLOR    = '#f5f0e8';
+// ─── Theme ────────────────────────────────────────────────────────────
+const THEME_KEY = 'knitty-theme';
 
+function getCanvasColors() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    border: s.getPropertyValue('--canvas-border').trim(),
+    symbol: s.getPropertyValue('--canvas-symbol').trim(),
+    fill: s.getPropertyValue('--canvas-fill').trim(),
+    empty: s.getPropertyValue('--canvas-empty').trim(),
+  };
+}
+
+function applyTheme(dark) {
+  if (dark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem(THEME_KEY, 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem(THEME_KEY, 'light');
+  }
+  buildStitchUI();
+  redraw();
+}
+
+function initTheme() {
+  const toggle = document.getElementById('toggle-dark-mode');
+  const dark = localStorage.getItem(THEME_KEY) === 'dark'
+    || document.documentElement.getAttribute('data-theme') === 'dark';
+  toggle.checked = dark;
+  toggle.addEventListener('change', () => applyTheme(toggle.checked));
+}
+
+// ─── Drawing ──────────────────────────────────────────────────────────
 function drawCell(r, c) {
+  const colors = getCanvasColors();
   const x = c * CELL, y = r * CELL;
   const s = CELL;
   const stId = grid[r][c];
 
   // background
-  ctx.fillStyle = (stId && stId !== 'empty') ? FILL_COLOR : '#fff';
+  ctx.fillStyle = (stId && stId !== 'empty') ? colors.fill : colors.empty;
   ctx.fillRect(x+1, y+1, s-1, s-1);
 
   // symbol
   if (stId && stId !== 'empty') {
     const st = STITCHES.find(st => st.id === stId);
     if (st && st.draw) {
-      ctx.strokeStyle = SYMBOL_COLOR;
-      ctx.fillStyle   = SYMBOL_COLOR;
+      ctx.strokeStyle = colors.symbol;
+      ctx.fillStyle   = colors.symbol;
       ctx.lineWidth   = Math.max(1.5, s * 0.055);
       ctx.lineCap     = 'round';
       st.draw(ctx, x, y, s);
@@ -569,11 +664,12 @@ function drawCell(r, c) {
 }
 
 function redraw() {
+  const colors = getCanvasColors();
   const W = canvasWidth(), H = canvasHeight();
   ctx.clearRect(0, 0, W, H);
 
   // grid lines
-  ctx.strokeStyle = BORDER_COLOR;
+  ctx.strokeStyle = colors.border;
   ctx.lineWidth   = 0.5;
   for (let r = 0; r <= ROWS; r++) {
     ctx.beginPath(); ctx.moveTo(0, r*CELL); ctx.lineTo(W, r*CELL); ctx.stroke();
@@ -589,6 +685,7 @@ function redraw() {
 
 // ─── Stitch UI ────────────────────────────────────────────────────────
 function buildStitchUI() {
+  const colors = getCanvasColors();
   const list = document.getElementById('stitch-list');
   list.innerHTML = '';
 
@@ -608,15 +705,15 @@ function buildStitchUI() {
     const rect = document.createElementNS(svgNS, 'rect');
     rect.setAttribute('x','0.5'); rect.setAttribute('y','0.5');
     rect.setAttribute('width','25'); rect.setAttribute('height','25');
-    rect.setAttribute('fill', st.id === 'empty' ? '#fff' : '#f5f0e8');
-    rect.setAttribute('stroke','#c8bfb0'); rect.setAttribute('stroke-width','1');
+    rect.setAttribute('fill', st.id === 'empty' ? colors.empty : colors.fill);
+    rect.setAttribute('stroke', colors.border); rect.setAttribute('stroke-width','1');
     svg.appendChild(rect);
 
     if (st.draw) {
       const oc = document.createElement('canvas');
       oc.width = 26; oc.height = 26;
       const oc2 = oc.getContext('2d');
-      oc2.strokeStyle = '#2a1f14'; oc2.fillStyle = '#2a1f14';
+      oc2.strokeStyle = colors.symbol; oc2.fillStyle = colors.symbol;
       oc2.lineWidth = 1.6; oc2.lineCap = 'round';
       st.draw(oc2, 0, 0, 26);
       const img = document.createElementNS(svgNS, 'image');
@@ -1166,6 +1263,7 @@ document.getElementById('btn-import-hash').addEventListener('click', () => {
 
 
 // ─── Init ─────────────────────────────────────────────────────────────
+initTheme();
 buildStitchUI();
 initCanvas();
 redraw();
