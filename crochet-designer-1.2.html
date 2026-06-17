@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crochet Pattern Designer</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --panel: #f0ece4;
+    --border: #c8bfb0;
+    --accent: #7c5c3e;
+    --accent2: #b8865a;
+    --text: #2a1f14;
+    --text2: #6b5c4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background: var(--accent);
+    color: #f7f4ef;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  header h1 { font-size: 1.2rem; letter-spacing: 0.04em; font-weight: normal; flex: 1; }
+  .main { display: flex; flex: 1; overflow: hidden; }
+  .sidebar {
+    width: 230px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-section { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
+  .sidebar-section h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text2);
+    margin-bottom: 10px;
+  }
+  .field-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .field-row label { font-size: 0.82rem; color: var(--text2); width: 56px; flex-shrink: 0; }
+  .field-row input[type=number] {
+    width: 64px; padding: 4px 6px;
+    border: 1px solid var(--border); border-radius: 3px;
+    background: var(--surface); font-size: 0.85rem; color: var(--text);
+  }
+  button { cursor: pointer; border: none; border-radius: 3px; font-family: inherit; }
+  .btn-primary {
+    background: var(--accent); color: #f7f4ef;
+    padding: 6px 12px; font-size: 0.82rem; letter-spacing: 0.04em;
+    width: 100%; margin-top: 4px; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-secondary {
+    background: var(--surface); color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 6px 12px; font-size: 0.82rem;
+    width: 100%; margin-top: 6px; transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: #ede7df; }
+
+  /* Stitch list */
+  .stitch-list { display: flex; flex-direction: column; gap: 5px; }
+  .stitch-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 6px; border-radius: 3px;
+    border: 2px solid transparent;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .stitch-item.active { background: #e8e0d6; border-color: var(--accent); }
+  .stitch-item.disabled { opacity: 0.38; }
+
+  /* The icon+label part is clickable to select active stitch */
+  .stitch-select {
+    display: flex; align-items: center; gap: 8px;
+    flex: 1; cursor: pointer;
+  }
+  .stitch-label { font-size: 0.78rem; color: var(--text); line-height: 1.2; }
+
+  /* Toggle checkbox styled as pill */
+  .stitch-toggle {
+    position: relative; flex-shrink: 0;
+    width: 30px; height: 17px;
+  }
+  .stitch-toggle input { opacity: 0; width: 0; height: 0; }
+  .stitch-toggle-track {
+    position: absolute; inset: 0; border-radius: 17px;
+    background: #c8bfb0; cursor: pointer; transition: background 0.2s;
+  }
+  .stitch-toggle input:checked + .stitch-toggle-track { background: var(--accent2); }
+  .stitch-toggle-track::before {
+    content: '';
+    position: absolute; width: 11px; height: 11px;
+    border-radius: 50%; background: #fff;
+    top: 3px; left: 3px; transition: transform 0.2s;
+  }
+  .stitch-toggle input:checked + .stitch-toggle-track::before { transform: translateX(13px); }
+
+  /* Canvas area */
+  .canvas-area {
+    flex: 1; overflow: auto;
+    display: flex; align-items: flex-start; justify-content: flex-start;
+    padding: 20px; background: var(--bg);
+  }
+  /* wrapper includes ruler labels */
+  #grid-outer { display: inline-flex; flex-direction: column; user-select: none; }
+  #col-ruler { display: flex; margin-left: 0; }  /* filled by JS */
+  #grid-row-wrap { display: flex; }
+  #row-ruler { display: flex; flex-direction: column; }
+  .ruler-cell {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text2);
+    font-family: monospace; flex-shrink: 0;
+  }
+  #grid-canvas {
+    display: block; cursor: crosshair;
+    border: 2px solid var(--accent);
+    box-shadow: 0 4px 24px rgba(124,92,62,0.10);
+  }
+
+  .hint { font-size: 0.72rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
+  #export-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧶 Crochet Pattern Designer</h1>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+
+    <div class="sidebar-section">
+      <h3>Rozmiar siatki</h3>
+      <div class="field-row">
+        <label>Kolumny</label>
+        <input type="number" id="inp-cols" value="20" min="2" max="120">
+      </div>
+      <div class="field-row">
+        <label>Wiersze</label>
+        <input type="number" id="inp-rows" value="20" min="2" max="120">
+      </div>
+      <div class="field-row">
+        <label>Rozmiar</label>
+        <input type="number" id="inp-cell" value="32" min="16" max="64">px
+      </div>
+      <button class="btn-primary" id="btn-resize">Zastosuj</button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Ścieg (aktywny)</h3>
+      <div class="stitch-list" id="stitch-list"></div>
+      <p class="hint">LMB – kliknij by ustawić / zmienić ścieg<br>Przeciągnij LMB – wypełnij wiele kratek<br>RMB – usuń komórkę</p>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Eksport</h3>
+      <button class="btn-primary" id="btn-pdf">Eksportuj PDF</button>
+      <button class="btn-secondary" id="btn-jpg">Eksportuj JPG</button>
+      <div id="export-status"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Projekt</h3>
+      <button class="btn-secondary" id="btn-clear">Wyczyść siatkę</button>
+    </div>
+
+  </div>
+
+  <div class="canvas-area">
+    <div id="grid-outer">
+      <div style="display:flex">
+        <div id="row-ruler-spacer"></div><!-- spacer matching row ruler width -->
+        <div id="col-ruler"></div>
+      </div>
+      <div id="grid-row-wrap">
+        <div id="row-ruler"></div>
+        <canvas id="grid-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ─── Stitch definitions ────────────────────────────────────────────────
+const STITCHES = [
+  {
+    id: 'p_rs',
+    label: 'P on RS / K on WS',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.arc(x + s/2, y + s/2, s * 0.22, 0, Math.PI*2);
+      ctx.fill();
+    }
+  },
+  {
+    id: 'yo',
+    label: 'yo',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.arc(x + s/2, y + s/2, s * 0.30, 0, Math.PI*2);
+      ctx.stroke();
+    }
+  },
+  {
+    id: 'ssk',
+    label: 'ssk',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.75, y + s*0.15);
+      ctx.lineTo(x + s*0.15, y + s*0.85);
+      ctx.stroke();
+    }
+  },
+  {
+    id: 'k2tog',
+    label: 'k2tog',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.2, y + s*0.2);
+      ctx.lineTo(x + s*0.8, y + s*0.8);
+      ctx.stroke();
+    }
+  },
+  {
+    id: 'sk2p',
+    label: 'sk2p',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.moveTo(x + s/2,    y + s*0.18);
+      ctx.lineTo(x + s*0.18, y + s*0.82);
+      ctx.lineTo(x + s*0.82, y + s*0.82);
+      ctx.closePath();
+      ctx.stroke();
+    }
+  }
+];
+
+// Which stitches are enabled (included in cycle). 'empty' is always structural.
+// enabledSet: Set of stitch ids that are toggled ON
+const enabledSet = new Set(STITCHES.map(s => s.id));
+
+function getActiveCycle() {
+  // ordered cycle of enabled non-empty stitches
+  return STITCHES.filter(s => s.id !== 'empty' && enabledSet.has(s.id)).map(s => s.id);
+}
+
+// ─── State ────────────────────────────────────────────────────────────
+let COLS = 20, ROWS = 20, CELL = 32;
+let grid = [];
+
+function makeGrid(rows, cols) {
+  return Array.from({length: rows}, () => Array(cols).fill(null));
+}
+
+function resizeGrid(newRows, newCols) {
+  const oldRows = grid.length;
+  const oldCols = grid[0]?.length ?? 0;
+  const rowOff = Math.floor((newRows - oldRows) / 2);
+  const colOff = Math.floor((newCols - oldCols) / 2);
+  const ng = makeGrid(newRows, newCols);
+  for (let r = 0; r < oldRows; r++) {
+    for (let c = 0; c < oldCols; c++) {
+      const nr = r + rowOff, nc = c + colOff;
+      if (nr >= 0 && nr < newRows && nc >= 0 && nc < newCols) {
+        ng[nr][nc] = grid[r][c];
+      }
+    }
+  }
+  grid = ng;
+}
+
+grid = makeGrid(ROWS, COLS);
+
+let activeStitch = 'p_rs';
+
+// ─── Mouse state ──────────────────────────────────────────────────────
+// FIX: track last cell entered during drag — only apply draw when entering a NEW cell
+let isDrawing = false;
+let drawMode = null; // 'draw' | 'erase'
+let lastDragCell = null; // {r,c} — cell where we last applied an action during drag
+
+// ─── Canvas setup ─────────────────────────────────────────────────────
+const canvas = document.getElementById('grid-canvas');
+const ctx = canvas.getContext('2d');
+const RULER_W = 28; // px width of row ruler column
+
+function canvasWidth()  { return COLS * CELL; }
+function canvasHeight() { return ROWS * CELL; }
+
+function initCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvasWidth(), H = canvasHeight();
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  buildRulers();
+}
+
+function buildRulers() {
+  const colRuler = document.getElementById('col-ruler');
+  const rowRuler = document.getElementById('row-ruler');
+  const spacer   = document.getElementById('row-ruler-spacer');
+
+  spacer.style.width  = RULER_W + 'px';
+  spacer.style.flexShrink = '0';
+
+  // Column ruler (letters A-Z, AA, AB…)
+  colRuler.innerHTML = '';
+  for (let c = 0; c < COLS; c++) {
+    const el = document.createElement('div');
+    el.className = 'ruler-cell';
+    el.style.width  = CELL + 'px';
+    el.style.height = RULER_W + 'px';
+    el.style.flexShrink = '0';
+    el.textContent = colLabel(c);
+    colRuler.appendChild(el);
+  }
+
+  // Row ruler (numbers 1, 2, 3…)
+  rowRuler.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    const el = document.createElement('div');
+    el.className = 'ruler-cell';
+    el.style.width  = RULER_W + 'px';
+    el.style.height = CELL + 'px';
+    el.style.flexShrink = '0';
+    el.textContent = r + 1;
+    rowRuler.appendChild(el);
+  }
+}
+
+function colLabel(c) {
+  // A-Z, then AA, AB…
+  let label = '';
+  c++;
+  while (c > 0) {
+    c--;
+    label = String.fromCharCode(65 + (c % 26)) + label;
+    c = Math.floor(c / 26);
+  }
+  return label;
+}
+
+// ─── Drawing ──────────────────────────────────────────────────────────
+const BORDER_COLOR  = '#c8bfb0';
+const SYMBOL_COLOR  = '#2a1f14';
+const FILL_COLOR    = '#f5f0e8';
+
+function drawCell(r, c) {
+  const x = c * CELL, y = r * CELL;
+  const s = CELL;
+  const stId = grid[r][c];
+
+  // background
+  ctx.fillStyle = (stId && stId !== 'empty') ? FILL_COLOR : '#fff';
+  ctx.fillRect(x+1, y+1, s-1, s-1);
+
+  // symbol
+  if (stId && stId !== 'empty') {
+    const st = STITCHES.find(st => st.id === stId);
+    if (st && st.draw) {
+      ctx.strokeStyle = SYMBOL_COLOR;
+      ctx.fillStyle   = SYMBOL_COLOR;
+      ctx.lineWidth   = Math.max(1.5, s * 0.055);
+      ctx.lineCap     = 'round';
+      st.draw(ctx, x, y, s);
+    }
+  }
+}
+
+function redraw() {
+  const W = canvasWidth(), H = canvasHeight();
+  ctx.clearRect(0, 0, W, H);
+
+  // grid lines
+  ctx.strokeStyle = BORDER_COLOR;
+  ctx.lineWidth   = 0.5;
+  for (let r = 0; r <= ROWS; r++) {
+    ctx.beginPath(); ctx.moveTo(0, r*CELL); ctx.lineTo(W, r*CELL); ctx.stroke();
+  }
+  for (let c = 0; c <= COLS; c++) {
+    ctx.beginPath(); ctx.moveTo(c*CELL, 0); ctx.lineTo(c*CELL, H); ctx.stroke();
+  }
+
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      drawCell(r, c);
+}
+
+// ─── Stitch UI ────────────────────────────────────────────────────────
+function buildStitchUI() {
+  const list = document.getElementById('stitch-list');
+  list.innerHTML = '';
+
+  STITCHES.forEach(st => {
+    const item = document.createElement('div');
+    item.className = 'stitch-item';
+    if (st.id !== 'empty' && st.id === activeStitch) item.classList.add('active');
+    if (!enabledSet.has(st.id)) item.classList.add('disabled');
+    item.dataset.id = st.id;
+
+    // ── icon
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '26'); svg.setAttribute('height', '26');
+    svg.setAttribute('viewBox', '0 0 26 26');
+
+    const rect = document.createElementNS(svgNS, 'rect');
+    rect.setAttribute('x','0.5'); rect.setAttribute('y','0.5');
+    rect.setAttribute('width','25'); rect.setAttribute('height','25');
+    rect.setAttribute('fill', st.id === 'empty' ? '#fff' : '#f5f0e8');
+    rect.setAttribute('stroke','#c8bfb0'); rect.setAttribute('stroke-width','1');
+    svg.appendChild(rect);
+
+    if (st.draw) {
+      const oc = document.createElement('canvas');
+      oc.width = 26; oc.height = 26;
+      const oc2 = oc.getContext('2d');
+      oc2.strokeStyle = '#2a1f14'; oc2.fillStyle = '#2a1f14';
+      oc2.lineWidth = 1.6; oc2.lineCap = 'round';
+      st.draw(oc2, 0, 0, 26);
+      const img = document.createElementNS(svgNS, 'image');
+      img.setAttribute('href', oc.toDataURL());
+      img.setAttribute('x','0'); img.setAttribute('y','0');
+      img.setAttribute('width','26'); img.setAttribute('height','26');
+      svg.appendChild(img);
+    }
+
+    const label = document.createElement('div');
+    label.className = 'stitch-label';
+    label.textContent = st.label;
+
+    // clickable select area (icon + label)
+    const selectArea = document.createElement('div');
+    selectArea.className = 'stitch-select';
+    selectArea.appendChild(svg);
+    selectArea.appendChild(label);
+
+    if (st.id !== 'empty') {
+      selectArea.addEventListener('click', () => {
+        if (!enabledSet.has(st.id)) return; // can't select disabled
+        activeStitch = st.id;
+        // if activeStitch is no longer in cycle, pick first enabled
+        ensureActiveStitchValid();
+        refreshStitchUI();
+      });
+    }
+
+    item.appendChild(selectArea);
+
+    // ── toggle (pill switch)
+    const toggleLabel = document.createElement('label');
+    toggleLabel.className = 'stitch-toggle';
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = enabledSet.has(st.id);
+    const track = document.createElement('div');
+    track.className = 'stitch-toggle-track';
+    toggleLabel.appendChild(chk);
+    toggleLabel.appendChild(track);
+
+    chk.addEventListener('change', () => {
+      if (chk.checked) {
+        enabledSet.add(st.id);
+      } else {
+        // don't allow disabling if it's the last enabled non-empty stitch
+        const cycle = getActiveCycle();
+        if (st.id !== 'empty' && cycle.length <= 1) {
+          chk.checked = true;
+          return;
+        }
+        enabledSet.delete(st.id);
+      }
+      item.classList.toggle('disabled', !enabledSet.has(st.id));
+      ensureActiveStitchValid();
+      refreshStitchUI();
+    });
+
+    item.appendChild(toggleLabel);
+    list.appendChild(item);
+  });
+}
+
+function refreshStitchUI() {
+  document.querySelectorAll('.stitch-item').forEach(el => {
+    const id = el.dataset.id;
+    el.classList.toggle('active', id === activeStitch && id !== 'empty');
+    el.classList.toggle('disabled', !enabledSet.has(id));
+  });
+}
+
+function ensureActiveStitchValid() {
+  const cycle = getActiveCycle();
+  if (!cycle.includes(activeStitch)) {
+    activeStitch = cycle[0] ?? 'p_rs';
+  }
+}
+
+// ─── Mouse interaction ─────────────────────────────────────────────────
+function cellFromEvent(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const c = Math.floor(x / CELL);
+  const r = Math.floor(y / CELL);
+  if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
+  return {r, c};
+}
+
+function cellKey(r, c) { return r + ',' + c; }
+
+// Apply action to a cell:
+// - erase mode: always clear
+// - draw mode: set to activeStitch ONLY (no cycling during drag)
+//   cycling happens only on fresh click (mousedown on same cell already painted with activeStitch)
+function applyCell(r, c, isFirstClick) {
+  if (drawMode === 'erase') {
+    if (grid[r][c] !== null) { grid[r][c] = null; drawCell(r, c); }
+    return;
+  }
+  // draw mode
+  if (isFirstClick) {
+    // FIX: cycling ONLY on a fresh click (mousedown), not during drag
+    const cur = grid[r][c];
+    const cycle = getActiveCycle();
+    if (cur === null || !cycle.includes(cur)) {
+      grid[r][c] = activeStitch;
+    } else {
+      // advance to next in cycle
+      const idx = cycle.indexOf(cur);
+      grid[r][c] = cycle[(idx + 1) % cycle.length];
+      // keep activeStitch in sync
+      activeStitch = grid[r][c];
+      refreshStitchUI();
+    }
+  } else {
+    // drag — just paint activeStitch, don't cycle
+    if (grid[r][c] !== activeStitch) {
+      grid[r][c] = activeStitch;
+    }
+  }
+  drawCell(r, c);
+}
+
+canvas.addEventListener('mousedown', e => {
+  e.preventDefault();
+  const cell = cellFromEvent(e);
+  if (!cell) return;
+  isDrawing = true;
+  drawMode = e.button === 2 ? 'erase' : 'draw';
+  lastDragCell = cell;
+  applyCell(cell.r, cell.c, true); // first click — allow cycle
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!isDrawing) return;
+  const cell = cellFromEvent(e);
+  if (!cell) return;
+  // Only act when entering a NEW cell
+  if (lastDragCell && cell.r === lastDragCell.r && cell.c === lastDragCell.c) return;
+  lastDragCell = cell;
+  applyCell(cell.r, cell.c, false); // drag — no cycling
+});
+
+window.addEventListener('mouseup', () => {
+  isDrawing = false;
+  drawMode = null;
+  lastDragCell = null;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ─── Resize ───────────────────────────────────────────────────────────
+document.getElementById('btn-resize').addEventListener('click', () => {
+  const newCols = Math.max(2, Math.min(120, parseInt(document.getElementById('inp-cols').value) || COLS));
+  const newRows = Math.max(2, Math.min(120, parseInt(document.getElementById('inp-rows').value) || ROWS));
+  const newCell = Math.max(16, Math.min(64,  parseInt(document.getElementById('inp-cell').value) || CELL));
+  resizeGrid(newRows, newCols);
+  COLS = newCols; ROWS = newRows; CELL = newCell;
+  initCanvas();
+  redraw();
+});
+
+// ─── Clear ────────────────────────────────────────────────────────────
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (confirm('Wyczyścić całą siatkę?')) { grid = makeGrid(ROWS, COLS); redraw(); }
+});
+
+// ─── Export JPG ───────────────────────────────────────────────────────
+document.getElementById('btn-jpg').addEventListener('click', () => {
+  const status = document.getElementById('export-status');
+  status.textContent = 'Generowanie JPG…';
+  setTimeout(() => {
+    const link = document.createElement('a');
+    link.download = 'crochet-pattern.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+    status.textContent = 'JPG gotowy!';
+    setTimeout(() => status.textContent = '', 2000);
+  }, 50);
+});
+
+// ─── Export PDF ───────────────────────────────────────────────────────
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  const status = document.getElementById('export-status');
+  status.textContent = 'Generowanie PDF…';
+  await new Promise(r => setTimeout(r, 20));
+  try {
+    const { jsPDF } = window.jspdf;
+    const margin = 28;
+    const rulerPt = 18;
+    const ptPerPx = 72 / 96;
+    const cPt = CELL * ptPerPx;
+    const W = COLS * cPt + 2*margin + rulerPt;
+    const H = ROWS * cPt + 2*margin + rulerPt + 30;
+
+    const doc = new jsPDF({ orientation: W > H ? 'landscape' : 'portrait', unit: 'pt', format: [W, H] });
+
+    const ox = margin + rulerPt; // grid origin x
+    const oy = margin + rulerPt; // grid origin y
+
+    // title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(124, 92, 62);
+    doc.text('Crochet Pattern', margin, margin - 8);
+
+    // col ruler
+    doc.setFontSize(6); doc.setFont('helvetica','normal');
+    doc.setTextColor(107, 92, 74);
+    for (let c = 0; c < COLS; c++) {
+      const x = ox + c * cPt + cPt/2;
+      doc.text(colLabel(c), x, oy - 4, { align: 'center' });
+    }
+    // row ruler
+    for (let r = 0; r < ROWS; r++) {
+      const y = oy + r * cPt + cPt/2 + 2;
+      doc.text(String(r+1), ox - 3, y, { align: 'right' });
+    }
+
+    // cells
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = ox + c * cPt;
+        const y = oy + r * cPt;
+        const stId = grid[r][c];
+
+        doc.setFillColor(stId && stId !== 'empty' ? 245 : 255,
+                         stId && stId !== 'empty' ? 240 : 255,
+                         stId && stId !== 'empty' ? 232 : 255);
+        doc.rect(x, y, cPt, cPt, 'F');
+        doc.setDrawColor(200, 191, 176); doc.setLineWidth(0.3);
+        doc.rect(x, y, cPt, cPt, 'S');
+
+        if (stId && stId !== 'empty') {
+          doc.setDrawColor(42,31,20); doc.setFillColor(42,31,20);
+          doc.setLineWidth(Math.max(0.6, cPt*0.055));
+          const cx = x+cPt/2, cy = y+cPt/2;
+          if (stId === 'p_rs')  doc.circle(cx, cy, cPt*0.22, 'F');
+          else if (stId === 'yo')    doc.circle(cx, cy, cPt*0.30, 'S');
+          else if (stId === 'ssk')   doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
+          else if (stId === 'k2tog') doc.line(x+cPt*0.2,  y+cPt*0.2,  x+cPt*0.8,  y+cPt*0.8);
+          else if (stId === 'sk2p')  doc.triangle(x+cPt*0.5,y+cPt*0.18, x+cPt*0.18,y+cPt*0.82, x+cPt*0.82,y+cPt*0.82,'S');
+        }
+      }
+    }
+
+    // legend
+    const ly = oy + ROWS*cPt + 14;
+    doc.setFontSize(7); doc.setTextColor(107,92,74);
+    STITCHES.filter(s => enabledSet.has(s.id)).forEach((st, i) => {
+      doc.text(`■ ${st.label}`, margin + (i%3)*(W/3 - margin), ly + Math.floor(i/3)*11);
+    });
+
+    doc.save('crochet-pattern.pdf');
+    status.textContent = 'PDF gotowy!';
+    setTimeout(() => status.textContent = '', 2000);
+  } catch(err) {
+    status.textContent = 'Błąd: ' + err.message;
+    console.error(err);
+  }
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────
+buildStitchUI();
+initCanvas();
+redraw();
+</script>
+</body>
+</html>
