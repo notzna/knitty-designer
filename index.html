@@ -219,7 +219,7 @@
   <div class="sidebar">
 
     <div class="sidebar-section">
-      <h3>Rozmiar siatki</h3>
+      <h3>Projekt</h3>
       <div class="field-row">
         <label>Kolumny</label>
         <input type="number" id="inp-cols" value="20" min="2" max="120">
@@ -317,18 +317,9 @@
 <script>
 // ─── Stitch definitions ────────────────────────────────────────────────
 const STITCHES = [
-  {
-    id: 'p_rs',
-    label: 'P on RS / K on WS',
-    draw: (ctx, x, y, s) => {
-      ctx.beginPath();
-      ctx.arc(x + s/2, y + s/2, s * 0.22, 0, Math.PI*2);
-      ctx.fill();
-    }
-  },
-  {
-  id: 'kaczka',
-  label: 'kaczka',
+{
+  id: 'square',
+  label: 'Square',
   draw: (ctx, x, y, s) => {
     ctx.beginPath();
     // Tworzymy mały kwadracik w samym środku komórki
@@ -346,10 +337,19 @@ const STITCHES = [
     // Przywracamy domyślną grubość dla kolejnych ikon
     ctx.lineWidth = originalLineWidth;
   }
-},
+}, 
+{
+    id: 'p_rs',
+    label: 'P on RS / K on WS',
+    draw: (ctx, x, y, s) => {
+      ctx.beginPath();
+      ctx.arc(x + s/2, y + s/2, s * 0.22, 0, Math.PI*2);
+      ctx.fill();
+    }
+  },
   {
     id: 'yo',
-    label: 'yo',
+    label: 'Yo',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.arc(x + s/2, y + s/2, s * 0.30, 0, Math.PI*2);
@@ -358,7 +358,7 @@ const STITCHES = [
   },
   {
     id: 'ssk',
-    label: 'ssk',
+    label: 'SSK',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.moveTo(x + s*0.75, y + s*0.15);
@@ -368,7 +368,7 @@ const STITCHES = [
   },
   {
     id: 'k2tog',
-    label: 'k2tog',
+    label: 'K2 to G',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.moveTo(x + s*0.2, y + s*0.2);
@@ -378,7 +378,7 @@ const STITCHES = [
   },
   {
     id: 'sk2p',
-    label: 'sk2p',
+    label: 'SK2P',
     draw: (ctx, x, y, s) => {
       ctx.beginPath();
       ctx.moveTo(x + s/2,    y + s*0.18);
@@ -469,7 +469,7 @@ function clearDrawHistory() {
   updateUndoRedoButtons();
 }
 
-let activeStitch = 'p_rs';
+let activeStitch = 'square';
 
 // ─── Mouse state ──────────────────────────────────────────────────────
 // FIX: track last cell entered during drag — only apply draw when entering a NEW cell
@@ -692,7 +692,7 @@ function refreshStitchUI() {
 function ensureActiveStitchValid() {
   const cycle = getActiveCycle();
   if (!cycle.includes(activeStitch)) {
-    activeStitch = cycle[0] ?? 'p_rs';
+    activeStitch = cycle[0] ?? 'square';
   }
 }
 
@@ -908,7 +908,7 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
           doc.setLineWidth(Math.max(0.6, cPt*0.055));
           const cx = x+cPt/2, cy = y+cPt/2;
           if (stId === 'p_rs')  doc.circle(cx, cy, cPt*0.22, 'F');
-          else if (stId === 'kaczka')    doc.circle(cx, cy, cPt*0.60, 'S');
+          else if (stId === 'square')    doc.circle(cx, cy, cPt*0.60, 'S');
           else if (stId === 'yo')    doc.circle(cx, cy, cPt*0.30, 'S');
           else if (stId === 'ssk')   doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
           else if (stId === 'k2tog') doc.line(x+cPt*0.2,  y+cPt*0.2,  x+cPt*0.8,  y+cPt*0.8);
