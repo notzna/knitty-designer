@@ -39,7 +39,8 @@
     --accent2: #d4bc98;
     --text: #e8dfd3;
     --text2: #a89880;
-    --header-text: #f0e8dc;
+    --header-text: #c4a882;
+    --header-bg: #3d2e20;
     --btn-primary-text: #1a1612;
     --btn-secondary-hover: #2e2820;
     --stitch-active-bg: #2e2820;
@@ -67,7 +68,7 @@
     transition: background-color 0.22s ease, color 0.22s ease;
   }
   header {
-    background: var(--accent);
+    background: var(--header-bg, var(--accent));
     color: var(--header-text);
     padding: 10px 20px;
     display: flex;
@@ -162,6 +163,27 @@
   }
   .stitch-toggle input:checked + .stitch-toggle-track::before { transform: translateX(13px); }
 
+  /* Dark mode: switche z outlinem zamiast pełnego wypełnienia */
+  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track {
+    background: transparent;
+    border: 1px solid var(--accent2);
+  }
+  [data-theme="dark"] .stitch-toggle input:checked + .stitch-toggle-track::before {
+    background: var(--accent2);
+    top: 2px;
+    left: 2px;
+    transform: translateX(12px);
+  }
+  [data-theme="dark"] .stitch-toggle-track {
+    background: transparent;
+    border: 1px solid var(--border);
+  }
+  [data-theme="dark"] .stitch-toggle-track::before {
+    background: var(--text2);
+    top: 2px;
+    left: 2px;
+  }
+
   /* Canvas area */
   .canvas-area {
     flex: 1; overflow: auto;
@@ -193,6 +215,8 @@
 
   .hint { font-size: 0.72rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
   #export-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
+  #save-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
+
 
   /* Modal */
   .modal-overlay {
@@ -269,7 +293,7 @@
 <body>
 
 <header>
-  <h1>🦆 Knitty Designer 1.6</h1>
+  <h1>🦆 Knitty Designer 1.8</h1>
 </header>
 
 <div class="main">
@@ -326,6 +350,7 @@
       <button class="btn-secondary" id="btn-clear">Wyczyść siatkę</button>
       <button class="btn-primary" id="btn-export-hash" style="margin-top: 6px;">Generuj kod zapisu</button>
       <button class="btn-secondary" id="btn-import-hash" style="margin-top: 6px;">Wczytaj z kodu</button>
+      <div id="save-status"></div>
     </div>
 
   </div>
@@ -431,28 +456,6 @@ const STITCHES = [
       ctx.stroke();
     }
   },
-  {
-    id: 'k2tog',
-    label: 'K2 to G',
-    draw: (ctx, x, y, s) => {
-      ctx.beginPath();
-      ctx.moveTo(x + s*0.2, y + s*0.2);
-      ctx.lineTo(x + s*0.8, y + s*0.8);
-      ctx.stroke();
-    }
-  },
-  {
-    id: 'sk2p',
-    label: 'SK2P',
-    draw: (ctx, x, y, s) => {
-      ctx.beginPath();
-      ctx.moveTo(x + s/2,    y + s*0.18);
-      ctx.lineTo(x + s*0.18, y + s*0.82);
-      ctx.lineTo(x + s*0.82, y + s*0.82);
-      ctx.closePath();
-      ctx.stroke();
-    }
-  }
 ];
 
 // Which stitches are enabled (included in cycle). 'empty' is always structural.
@@ -939,9 +942,35 @@ document.getElementById('btn-jpg').addEventListener('click', () => {
   const status = document.getElementById('export-status');
   status.textContent = 'Generowanie JPG…';
   setTimeout(() => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const rulerW = 28;
+    const margin = 20;
+    const W = COLS * CELL + rulerW + margin;
+    const H = ROWS * CELL + rulerW + margin;
+    const oc = document.createElement('canvas');
+    oc.width = W; oc.height = H;
+    const oc2 = oc.getContext('2d');
+    // background
+    oc2.fillStyle = dark ? '#1a1612' : '#ffffff';
+    oc2.fillRect(0, 0, W, H);
+    // grid (copy from main canvas, offset by rulerW; right/bottom margin stays empty)
+    oc2.drawImage(canvas, 0, 0, COLS*CELL, ROWS*CELL, rulerW, rulerW, COLS*CELL, ROWS*CELL);
+    // col ruler
+    oc2.fillStyle = dark ? '#a89880' : '#6b5c4a';
+    oc2.font = '10px monospace';
+    oc2.textAlign = 'center';
+    oc2.textBaseline = 'middle';
+    for (let c = 0; c < COLS; c++) {
+      oc2.fillText(colLabel(c), rulerW + c * CELL + CELL/2, rulerW/2);
+    }
+    // row ruler
+    oc2.textAlign = 'right';
+    for (let r = 0; r < ROWS; r++) {
+      oc2.fillText(String(r + 1), rulerW - 3, rulerW + r * CELL + CELL/2);
+    }
     const link = document.createElement('a');
-    link.download = 'crochet-pattern.jpg';
-    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.download = 'knitty-pattern.jpg';
+    link.href = oc.toDataURL('image/jpeg', 0.95);
     link.click();
     status.textContent = 'JPG gotowy!';
     setTimeout(() => status.textContent = '', 2000);
@@ -954,6 +983,16 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   status.textContent = 'Generowanie PDF…';
   await new Promise(r => setTimeout(r, 20));
   try {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    // color palette depending on theme
+    const pBg        = dark ? [26, 22, 18]     : [255, 255, 255];
+    const pEmpty     = dark ? [42, 36, 30]      : [255, 255, 255];
+    const pFill      = dark ? [50, 44, 36]      : [245, 240, 232];
+    const pGridLine  = dark ? [74, 64, 52]      : [200, 191, 176];
+    const pSymbol    = dark ? [232, 223, 211]   : [42, 31, 20];
+    const pRuler     = dark ? [168, 152, 128]   : [107, 92, 74];
+    const pTitle     = dark ? [196, 168, 130]   : [124, 92, 62];
+
     const { jsPDF } = window.jspdf;
     const margin = 28;
     const rulerPt = 18;
@@ -964,18 +1003,24 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
 
     const doc = new jsPDF({ orientation: W > H ? 'landscape' : 'portrait', unit: 'pt', format: [W, H] });
 
-    const ox = margin + rulerPt; // grid origin x
-    const oy = margin + rulerPt; // grid origin y
+    const ox = margin + rulerPt;
+    const oy = margin + rulerPt;
+
+    // background
+    if (dark) {
+      doc.setFillColor(...pBg);
+      doc.rect(0, 0, W, H, 'F');
+    }
 
     // title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(124, 92, 62);
-    doc.text('Crochet Pattern', margin, margin - 8);
+    doc.setTextColor(...pTitle);
+    doc.text('Knitty Designer 1.8', margin, margin - 8);
 
     // col ruler
     doc.setFontSize(6); doc.setFont('helvetica','normal');
-    doc.setTextColor(107, 92, 74);
+    doc.setTextColor(...pRuler);
     for (let c = 0; c < COLS; c++) {
       const x = ox + c * cPt + cPt/2;
       doc.text(colLabel(c), x, oy - 4, { align: 'center' });
@@ -993,35 +1038,31 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
         const y = oy + r * cPt;
         const stId = grid[r][c];
 
-        doc.setFillColor(stId && stId !== 'empty' ? 245 : 255,
-                         stId && stId !== 'empty' ? 240 : 255,
-                         stId && stId !== 'empty' ? 232 : 255);
+        doc.setFillColor(...(stId && stId !== 'empty' ? pFill : pEmpty));
         doc.rect(x, y, cPt, cPt, 'F');
-        doc.setDrawColor(200, 191, 176); doc.setLineWidth(0.3);
+        doc.setDrawColor(...pGridLine); doc.setLineWidth(0.3);
         doc.rect(x, y, cPt, cPt, 'S');
 
         if (stId && stId !== 'empty') {
-          doc.setDrawColor(42,31,20); doc.setFillColor(42,31,20);
+          doc.setDrawColor(...pSymbol); doc.setFillColor(...pSymbol);
           doc.setLineWidth(Math.max(0.6, cPt*0.055));
           const cx = x+cPt/2, cy = y+cPt/2;
           if (stId === 'p_rs')  doc.circle(cx, cy, cPt*0.22, 'F');
-          else if (stId === 'square')    doc.circle(cx, cy, cPt*0.60, 'S');
+          else if (stId === 'kaczka') { doc.setLineWidth(cPt*0.44); doc.rect(x+cPt*0.28, y+cPt*0.28, cPt*0.44, cPt*0.44, 'S'); doc.setLineWidth(Math.max(0.6, cPt*0.055)); }
           else if (stId === 'yo')    doc.circle(cx, cy, cPt*0.30, 'S');
           else if (stId === 'ssk')   doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
-          else if (stId === 'k2tog') doc.line(x+cPt*0.2,  y+cPt*0.2,  x+cPt*0.8,  y+cPt*0.8);
-          else if (stId === 'sk2p')  doc.triangle(x+cPt*0.5,y+cPt*0.18, x+cPt*0.18,y+cPt*0.82, x+cPt*0.82,y+cPt*0.82,'S');
         }
       }
     }
 
     // legend
-    const ly = oy + ROWS*cPt + 14;
-    doc.setFontSize(7); doc.setTextColor(107,92,74);
-    STITCHES.filter(s => enabledSet.has(s.id)).forEach((st, i) => {
-      doc.text(`■ ${st.label}`, margin + (i%3)*(W/3 - margin), ly + Math.floor(i/3)*11);
-    });
+    // const ly = oy + ROWS*cPt + 14;
+    // doc.setFontSize(7); doc.setTextColor(...pRuler);
+    //STITCHES.filter(s => enabledSet.has(s.id)).forEach((st, i) => {
+    //  doc.text(`■ ${st.label}`, margin + (i%3)*(W/3 - margin), ly + Math.floor(i/3)*11);
+    //});
 
-    doc.save('crochet-pattern.pdf');
+    doc.save('knitty-pattern.pdf');
     status.textContent = 'PDF gotowy!';
     setTimeout(() => status.textContent = '', 2000);
   } catch(err) {
@@ -1037,8 +1078,6 @@ const STITCH_MAP = {
   'kaczka': 'K',
   'yo': 'Y',
   'ssk': 'S',
-  'k2tog': 'G',
-  'sk2p': 'T',
   'empty': '_',
   'null': '_' // dla pustych pól w tablicy grid
 };
@@ -1212,7 +1251,7 @@ function loadProjectFromHash(hash) {
     initCanvas();
     redraw();
     
-    const status = document.getElementById('export-status');
+    const status = document.getElementById('save-status');
     status.textContent = 'Projekt wczytany!';
     setTimeout(() => status.textContent = '', 2000);
     return true;
