@@ -75,6 +75,10 @@
     width: 100%; margin-top: 6px; transition: background 0.15s;
   }
   .btn-secondary:hover { background: #ede7df; }
+  .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-secondary:disabled:hover { background: var(--surface); }
+  .btn-row { display: flex; gap: 6px; }
+  .btn-row button { flex: 1; margin-top: 0; }
 
   /* Stitch list */
   .stitch-list { display: flex; flex-direction: column; gap: 5px; }
@@ -137,12 +141,78 @@
 
   .hint { font-size: 0.72rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
   #export-status { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; min-height: 16px; text-align: center; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(42, 31, 20, 0.42);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 1000;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.18s, visibility 0.18s;
+  }
+  .modal-overlay.open { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 10px 36px rgba(42, 31, 20, 0.22);
+    width: min(480px, 100%);
+    max-height: calc(100vh - 40px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .modal-header h2 {
+    font-size: 0.95rem; font-weight: normal;
+    letter-spacing: 0.04em; color: var(--text);
+  }
+  .modal-close {
+    background: none; border: none;
+    color: var(--text2); font-size: 1.35rem; line-height: 1;
+    padding: 0 2px; cursor: pointer;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 14px 16px; overflow-y: auto; }
+  .modal-desc {
+    font-size: 0.82rem; color: var(--text2);
+    line-height: 1.45; margin-bottom: 10px;
+  }
+  .modal-textarea {
+    width: 100%; min-height: 120px; max-height: 220px;
+    padding: 8px 10px; resize: vertical;
+    border: 1px solid var(--border); border-radius: 3px;
+    background: var(--bg); font-size: 0.78rem;
+    font-family: monospace; color: var(--text);
+    line-height: 1.4;
+  }
+  .modal-textarea:focus {
+    outline: none; border-color: var(--accent2);
+    box-shadow: 0 0 0 2px rgba(184, 134, 90, 0.18);
+  }
+  .modal-error {
+    font-size: 0.78rem; color: #9a3b2e;
+    margin-top: 8px; min-height: 0;
+  }
+  .modal-error:empty { display: none; }
+  .modal-footer {
+    display: flex; gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .modal-footer button { flex: 1; margin-top: 0; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🦆 Knitty Designer 1.3</h1>
+  <h1>🦆 Knitty Designer 1.4</h1>
 </header>
 
 <div class="main">
@@ -179,8 +249,18 @@
     </div>
 
     <div class="sidebar-section">
+      <h3>Edycja</h3>
+      <div class="btn-row">
+        <button class="btn-secondary" id="btn-undo" title="CTRL+Z" disabled>Cofnij</button>
+        <button class="btn-secondary" id="btn-redo" title="CTRL+Y" disabled>Ponów</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
       <h3>Projekt</h3>
       <button class="btn-secondary" id="btn-clear">Wyczyść siatkę</button>
+      <button class="btn-primary" id="btn-export-hash" style="margin-top: 6px;">Generuj kod zapisu</button>
+      <button class="btn-secondary" id="btn-import-hash" style="margin-top: 6px;">Wczytaj z kodu</button>
     </div>
 
   </div>
@@ -195,6 +275,40 @@
         <div id="row-ruler"></div>
         <canvas id="grid-canvas"></canvas>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="hash-modal-overlay" class="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hash-modal-title">
+    <div class="modal-header">
+      <h2 id="hash-modal-title"></h2>
+      <button type="button" class="modal-close" id="hash-modal-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="hash-modal-desc" class="modal-desc"></p>
+      <textarea id="hash-modal-text" class="modal-textarea" rows="6"></textarea>
+      <p id="hash-modal-error" class="modal-error"></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" id="hash-modal-primary"></button>
+      <button type="button" class="btn-secondary" id="hash-modal-secondary"></button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal-overlay" class="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="modal-header">
+      <h2 id="confirm-modal-title"></h2>
+      <button type="button" class="modal-close" id="confirm-modal-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-modal-desc" class="modal-desc"></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" id="confirm-modal-primary"></button>
+      <button type="button" class="btn-secondary" id="confirm-modal-secondary"></button>
     </div>
   </div>
 </div>
@@ -311,6 +425,49 @@ function resizeGrid(newRows, newCols) {
 }
 
 grid = makeGrid(ROWS, COLS);
+
+// ─── Undo / Redo ──────────────────────────────────────────────────────
+const MAX_HISTORY = 50;
+let undoStack = [];
+let redoStack = [];
+
+function cloneGrid(g) {
+  return g.map(row => row.slice());
+}
+
+function pushHistory() {
+  undoStack.push(cloneGrid(grid));
+  if (undoStack.length > MAX_HISTORY) undoStack.shift();
+  redoStack = [];
+  updateUndoRedoButtons();
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(cloneGrid(grid));
+  grid = undoStack.pop();
+  redraw();
+  updateUndoRedoButtons();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(cloneGrid(grid));
+  grid = redoStack.pop();
+  redraw();
+  updateUndoRedoButtons();
+}
+
+function updateUndoRedoButtons() {
+  document.getElementById('btn-undo').disabled = undoStack.length === 0;
+  document.getElementById('btn-redo').disabled = redoStack.length === 0;
+}
+
+function clearDrawHistory() {
+  undoStack = [];
+  redoStack = [];
+  updateUndoRedoButtons();
+}
 
 let activeStitch = 'p_rs';
 
@@ -592,6 +749,7 @@ canvas.addEventListener('mousedown', e => {
   isDrawing = true;
   drawMode = e.button === 2 ? 'erase' : 'draw';
   lastDragCell = cell;
+  pushHistory();
   applyCell(cell.r, cell.c, true); // first click — allow cycle
 });
 
@@ -613,19 +771,70 @@ window.addEventListener('mouseup', () => {
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 
 // ─── Resize ───────────────────────────────────────────────────────────
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
 document.getElementById('btn-resize').addEventListener('click', () => {
   const newCols = Math.max(2, Math.min(120, parseInt(document.getElementById('inp-cols').value) || COLS));
   const newRows = Math.max(2, Math.min(120, parseInt(document.getElementById('inp-rows').value) || ROWS));
   const newCell = Math.max(16, Math.min(64,  parseInt(document.getElementById('inp-cell').value) || CELL));
   resizeGrid(newRows, newCols);
   COLS = newCols; ROWS = newRows; CELL = newCell;
+  clearDrawHistory();
   initCanvas();
   redraw();
 });
 
+// ─── Confirm modal ────────────────────────────────────────────────────
+const confirmModalOverlay = document.getElementById('confirm-modal-overlay');
+const confirmModalTitle = document.getElementById('confirm-modal-title');
+const confirmModalDesc = document.getElementById('confirm-modal-desc');
+const confirmModalPrimary = document.getElementById('confirm-modal-primary');
+const confirmModalSecondary = document.getElementById('confirm-modal-secondary');
+const confirmModalClose = document.getElementById('confirm-modal-close');
+
+let confirmModalOnPrimary = null;
+
+function closeConfirmModal() {
+  confirmModalOverlay.classList.remove('open');
+  confirmModalOverlay.setAttribute('aria-hidden', 'true');
+  confirmModalOnPrimary = null;
+}
+
+function openConfirmModal({ title, description, primaryLabel, secondaryLabel, onPrimary }) {
+  confirmModalTitle.textContent = title;
+  confirmModalDesc.textContent = description;
+  confirmModalPrimary.textContent = primaryLabel;
+  confirmModalSecondary.textContent = secondaryLabel;
+  confirmModalOnPrimary = onPrimary;
+  confirmModalOverlay.classList.add('open');
+  confirmModalOverlay.setAttribute('aria-hidden', 'false');
+}
+
+confirmModalPrimary.addEventListener('click', () => {
+  if (confirmModalOnPrimary) confirmModalOnPrimary();
+});
+
+confirmModalSecondary.addEventListener('click', closeConfirmModal);
+confirmModalClose.addEventListener('click', closeConfirmModal);
+confirmModalOverlay.addEventListener('click', (e) => {
+  if (e.target === confirmModalOverlay) closeConfirmModal();
+});
+
 // ─── Clear ────────────────────────────────────────────────────────────
 document.getElementById('btn-clear').addEventListener('click', () => {
-  if (confirm('Wyczyścić całą siatkę?')) { grid = makeGrid(ROWS, COLS); redraw(); }
+  openConfirmModal({
+    title: 'Wyczyść siatkę',
+    description: 'Czy na pewno chcesz usunąć wszystkie ściegi z siatki?',
+    primaryLabel: 'Wyczyść',
+    secondaryLabel: 'Anuluj',
+    onPrimary: () => {
+      grid = makeGrid(ROWS, COLS);
+      clearDrawHistory();
+      redraw();
+      closeConfirmModal();
+    }
+  });
 });
 
 // ─── Export JPG ───────────────────────────────────────────────────────
@@ -723,6 +932,238 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     console.error(err);
   }
 });
+// ─── Save & Load system (RLE + Base64) ────────────────────────────────
+
+// Mapowanie identyfikatorów ściegów na pojedyncze znaki, aby hashe były jak najkrótsze
+const STITCH_MAP = {
+  'p_rs': 'P',
+  'kaczka': 'K',
+  'yo': 'Y',
+  'ssk': 'S',
+  'k2tog': 'G',
+  'sk2p': 'T',
+  'empty': '_',
+  'null': '_' // dla pustych pól w tablicy grid
+};
+
+// Mapowanie odwrotne do wczytywania kodu
+const REVERSE_STITCH_MAP = Object.fromEntries(
+  Object.entries(STITCH_MAP).map(([key, value]) => [value, key === 'null' ? null : key])
+);
+
+// Funkcja generująca hasha
+function generateProjectHash() {
+  // 1. Spłaszczamy dwuwymiarową tablicę grid do jednej linii symboli jednoliterowych
+  const flatCells = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const val = grid[r][c];
+      flatCells.push(STITCH_MAP[val] || '_');
+    }
+  }
+
+  // 2. Kompresja RLE (Run-Length Encoding) - np. z "_____KKKK" robi "5_4K"
+  let rleString = '';
+  let count = 1;
+  for (let i = 0; i < flatCells.length; i++) {
+    if (flatCells[i] === flatCells[i + 1]) {
+      count++;
+    } else {
+      rleString += count + flatCells[i];
+      count = 1;
+    }
+  }
+
+  // 3. Tworzymy obiekt z metadanymi (wymiarami siatki) i skompresowanym wzorem
+  const projectObject = {
+    w: ROWS,
+    k: COLS,
+    d: rleString
+  };
+
+  // 4. Konwertujemy na format Base64 bezpieczny dla tekstu
+  const jsonText = JSON.stringify(projectObject);
+  const hash = btoa(unescape(encodeURIComponent(jsonText)));
+  return hash;
+}
+
+// ─── Modal kodu zapisu ────────────────────────────────────────────────
+const hashModalOverlay = document.getElementById('hash-modal-overlay');
+const hashModalTitle = document.getElementById('hash-modal-title');
+const hashModalDesc = document.getElementById('hash-modal-desc');
+const hashModalText = document.getElementById('hash-modal-text');
+const hashModalError = document.getElementById('hash-modal-error');
+const hashModalPrimary = document.getElementById('hash-modal-primary');
+const hashModalSecondary = document.getElementById('hash-modal-secondary');
+const hashModalClose = document.getElementById('hash-modal-close');
+
+let hashModalOnPrimary = null;
+
+function closeHashModal() {
+  hashModalOverlay.classList.remove('open');
+  hashModalOverlay.setAttribute('aria-hidden', 'true');
+  hashModalOnPrimary = null;
+}
+
+function openHashModal({ title, description, text, readOnly, primaryLabel, secondaryLabel, onPrimary }) {
+  hashModalTitle.textContent = title;
+  hashModalDesc.textContent = description;
+  hashModalText.value = text || '';
+  hashModalText.readOnly = !!readOnly;
+  hashModalError.textContent = '';
+  hashModalPrimary.textContent = primaryLabel;
+  hashModalSecondary.textContent = secondaryLabel;
+  hashModalOnPrimary = onPrimary;
+
+  hashModalOverlay.classList.add('open');
+  hashModalOverlay.setAttribute('aria-hidden', 'false');
+
+  if (readOnly) {
+    hashModalText.focus();
+    hashModalText.select();
+  } else {
+    hashModalText.focus();
+  }
+}
+
+async function copyHashModalText() {
+  const text = hashModalText.value;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      hashModalText.select();
+      document.execCommand('copy');
+    }
+    const original = hashModalPrimary.textContent;
+    hashModalPrimary.textContent = 'Skopiowano!';
+    setTimeout(() => { hashModalPrimary.textContent = original; }, 1500);
+  } catch (err) {
+    hashModalError.textContent = 'Nie udało się skopiować — zaznacz tekst ręcznie.';
+    console.error(err);
+  }
+}
+
+hashModalPrimary.addEventListener('click', () => {
+  if (hashModalOnPrimary) hashModalOnPrimary();
+});
+
+hashModalSecondary.addEventListener('click', closeHashModal);
+hashModalClose.addEventListener('click', closeHashModal);
+hashModalOverlay.addEventListener('click', (e) => {
+  if (e.target === hashModalOverlay) closeHashModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (confirmModalOverlay.classList.contains('open')) closeConfirmModal();
+    else if (hashModalOverlay.classList.contains('open')) closeHashModal();
+    return;
+  }
+  if (e.target.matches('input, textarea')) return;
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+  if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+});
+
+// Funkcja wczytująca projekt z hasha
+function loadProjectFromHash(hash) {
+  try {
+    // 1. Odkodowanie z Base64 do JSON
+    const jsonText = decodeURIComponent(escape(atob(hash.trim())));
+    const project = JSON.parse(jsonText);
+
+    if (!project.w || !project.k || !project.d) {
+      throw new Error("Nieprawidłowy format danych wewnątrz kodu.");
+    }
+
+    // 2. Aktualizacja ustawień rozmiarów w UI i zmiennych globalnych
+    document.getElementById('inp-rows').value = project.w;
+    document.getElementById('inp-cols').value = project.k;
+    ROWS = project.w;
+    COLS = project.k;
+
+    // 3. Dekompresja ciągu RLE z powrotem do tablicy jednoliterowej
+    const flatCells = [];
+    const rleRegex = /(\d+)(.)/g;
+    let match;
+    
+    while ((match = rleRegex.exec(project.d)) !== null) {
+      const count = parseInt(match[1]);
+      const char = match[2];
+      const stitchId = REVERSE_STITCH_MAP[char] !== undefined ? REVERSE_STITCH_MAP[char] : null;
+      
+      for (let i = 0; i < count; i++) {
+        flatCells.push(stitchId);
+      }
+    }
+
+    // Sprawdzenie poprawności długości danych
+    if (flatCells.length !== ROWS * COLS) {
+      throw new Error("Suma pól w kodzie nie zgadza się z wymiarami siatki.");
+    }
+
+    // 4. Odbudowa dwuwymiarowej tablicy grid
+    grid = makeGrid(ROWS, COLS);
+    let index = 0;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        grid[r][c] = flatCells[index++];
+      }
+    }
+
+    // 5. Odświeżenie płótna (canvas) i linijek
+    clearDrawHistory();
+    initCanvas();
+    redraw();
+    
+    const status = document.getElementById('export-status');
+    status.textContent = 'Projekt wczytany!';
+    setTimeout(() => status.textContent = '', 2000);
+    return true;
+
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+// ─── Obsługa zdarzeń kliknięcia przycisków ─────────────────────────────
+document.getElementById('btn-export-hash').addEventListener('click', () => {
+  const hash = generateProjectHash();
+  openHashModal({
+    title: 'Kod zapisu',
+    description: 'Skopiuj poniższy kod i zapisz go w bezpiecznym miejscu:',
+    text: hash,
+    readOnly: true,
+    primaryLabel: 'Kopiuj',
+    secondaryLabel: 'Zamknij',
+    onPrimary: copyHashModalText
+  });
+});
+
+document.getElementById('btn-import-hash').addEventListener('click', () => {
+  openHashModal({
+    title: 'Wczytaj z kodu',
+    description: 'Wklej tutaj swój kod zapisu projektu:',
+    text: '',
+    readOnly: false,
+    primaryLabel: 'Wczytaj',
+    secondaryLabel: 'Anuluj',
+    onPrimary: () => {
+      const hash = hashModalText.value;
+      if (!hash || hash.trim() === '') {
+        hashModalError.textContent = 'Wklej kod zapisu, aby wczytać projekt.';
+        return;
+      }
+      const ok = loadProjectFromHash(hash);
+      if (ok) {
+        closeHashModal();
+      } else {
+        hashModalError.textContent = 'Podany kod zapisu jest nieprawidłowy lub uszkodzony.';
+      }
+    }
+  });
+});
+
 
 // ─── Init ─────────────────────────────────────────────────────────────
 buildStitchUI();
