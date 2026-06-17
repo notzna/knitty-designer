@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crochet Pattern Designer</title>
+<title>Knitty Designer</title>
 <style>
   :root {
     --bg: #f7f4ef;
@@ -142,7 +142,7 @@
 <body>
 
 <header>
-  <h1>🧶 Crochet Pattern Designer</h1>
+  <h1>🦆 Knitty Designer 1.3</h1>
 </header>
 
 <div class="main">
@@ -168,7 +168,7 @@
     <div class="sidebar-section">
       <h3>Ścieg (aktywny)</h3>
       <div class="stitch-list" id="stitch-list"></div>
-      <p class="hint">LMB – kliknij by ustawić / zmienić ścieg<br>Przeciągnij LMB – wypełnij wiele kratek<br>RMB – usuń komórkę</p>
+      <p class="hint">LMB – rysuj / zmień ścieg<br>RMB – usuń ścieg</p>
     </div>
 
     <div class="sidebar-section">
@@ -212,6 +212,27 @@ const STITCHES = [
       ctx.fill();
     }
   },
+  {
+  id: 'kaczka',
+  label: 'kaczka',
+  draw: (ctx, x, y, s) => {
+    ctx.beginPath();
+    // Tworzymy mały kwadracik w samym środku komórki
+    // s * 0.44 to szerokość odpowiadająca średnicy kropki z 'P on RS'
+    ctx.rect(x + s * 0.28, y + s * 0.28, s * 0.44, s * 0.44);
+    
+    // Zapamiętujemy oryginalną grubość linii
+    const originalLineWidth = ctx.lineWidth; 
+    
+    // Zamiast fillStyle, "wypełniamy" go za pomocą grubego obrysu, 
+    // co zapobiega psuciu tła i innych ikon w pętli
+    ctx.lineWidth = s * 0.44;
+    ctx.stroke();
+    
+    // Przywracamy domyślną grubość dla kolejnych ikon
+    ctx.lineWidth = originalLineWidth;
+  }
+},
   {
     id: 'yo',
     label: 'yo',
@@ -678,6 +699,7 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
           doc.setLineWidth(Math.max(0.6, cPt*0.055));
           const cx = x+cPt/2, cy = y+cPt/2;
           if (stId === 'p_rs')  doc.circle(cx, cy, cPt*0.22, 'F');
+          else if (stId === 'kaczka')    doc.circle(cx, cy, cPt*0.60, 'S');
           else if (stId === 'yo')    doc.circle(cx, cy, cPt*0.30, 'S');
           else if (stId === 'ssk')   doc.line(x+cPt*0.75, y+cPt*0.15, x+cPt*0.15, y+cPt*0.85);
           else if (stId === 'k2tog') doc.line(x+cPt*0.2,  y+cPt*0.2,  x+cPt*0.8,  y+cPt*0.8);
