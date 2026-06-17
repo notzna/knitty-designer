@@ -269,7 +269,7 @@
 <body>
 
 <header>
-  <h1>🦆 Knitty Designer 1.5</h1>
+  <h1>🦆 Knitty Designer 1.6</h1>
 </header>
 
 <div class="main">
@@ -383,7 +383,7 @@
 // ─── Stitch definitions ────────────────────────────────────────────────
 const STITCHES = [
 {
-  id: 'square',
+  id: 'kaczka',
   label: 'Square',
   draw: (ctx, x, y, s) => {
     ctx.beginPath();
@@ -457,7 +457,7 @@ const STITCHES = [
 
 // Which stitches are enabled (included in cycle). 'empty' is always structural.
 // enabledSet: Set of stitch ids that are toggled ON
-const enabledSet = new Set(STITCHES.map(s => s.id));
+const enabledSet = new Set([STITCHES[0].id]);
 
 function getActiveCycle() {
   // ordered cycle of enabled non-empty stitches
@@ -534,7 +534,7 @@ function clearDrawHistory() {
   updateUndoRedoButtons();
 }
 
-let activeStitch = 'square';
+let activeStitch = 'kaczka';
 
 // ─── Mouse state ──────────────────────────────────────────────────────
 // FIX: track last cell entered during drag — only apply draw when entering a NEW cell
@@ -789,7 +789,7 @@ function refreshStitchUI() {
 function ensureActiveStitchValid() {
   const cycle = getActiveCycle();
   if (!cycle.includes(activeStitch)) {
-    activeStitch = cycle[0] ?? 'square';
+    activeStitch = cycle[0] ?? 'kaczka';
   }
 }
 
